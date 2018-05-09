@@ -1,6 +1,10 @@
 # Planet426
 
+<<<<<<< HEAD
 ## TODO:
+=======
+TODO:
+>>>>>>> 82f5e2cf6fac9a0f33d858b75c6bb453c392f7a2
 - [x] Create TODO list.
 - [ ] Gather papers on machine learning-enabled terrain generation.
 - [ ] Data Collection.
