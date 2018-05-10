@@ -1,4 +1,4 @@
-# PlanIt426
+# Planet426
 
 ## TODO
 - [x] Create TODO list.
