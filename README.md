@@ -2,10 +2,14 @@
 
 ## TODO
 - [x] Create TODO list.
-- [ ] Gather papers on machine learning-enabled terrain generation.
-- [ ] Data Collection.
-- [ ] Train neural network for terrain generation.
-- [ ] Keep changing parameters of terrain generator until output looks good.
-- [ ] Implement different input parameters for neural network (i.e. biomes, colors, altitudes, ...).
-- [ ] Build interface for terrain generator (using COS426 projects' interface as baseline).
+- [ ] Build framework for terrain generator.
+- [ ] Build GUI for terrain generator parameters.
+- [ ] Build framework for landscape editor.
+- [ ] Build GUI for landscape editor.
+- [ ] Modify terrain generator to planet generator (i.e. spherical generator).
+- [ ] Add features to terrain generator that were enabled in landscape editor.
+- [ ] Link landscape editor to terrain generator (make sure to remove artifacts, ensure continuity, etc.).
+- [ ] Features! Features! Features!
 - [ ] Write a 3-5-single-spaced-page writeup.
+
+Project Completion: 20/100.
