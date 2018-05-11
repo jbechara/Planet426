@@ -2,7 +2,7 @@
 
 ## TODO
 - [x] Create TODO list.
-- [ ] Build framework for terrain generator.
+- [x] Build framework for terrain generator.
 - [ ] Build GUI for terrain generator parameters.
 - [ ] Build framework for landscape editor.
 - [ ] Build GUI for landscape editor.
