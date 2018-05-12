@@ -10,7 +10,7 @@ var PerlinGenerator = function(quality, steps, factor, scale) {
 	// Generate Displacement
 	this.generate = function (x, y, z) {
 		var q = 1, d = 0;
-    	for (var i = 0; i < steps; i++, q *= quality)
+    	for (var i = steps; i > 0; i--, q *= quality)
             d += Math.abs(perlin.noise(x/q, y/q, z/q)*q*factor);
 		return Math.pow(d, scale);
 	}

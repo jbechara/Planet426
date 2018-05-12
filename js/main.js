@@ -26,7 +26,7 @@ function init_scene() {
     controls.dampingFactor = 0.25;
     controls.screenSpacePanning = false;
     controls.minDistance = 100;
-    controls.maxPolarAngle = Math.PI / 2;
+    controls.enableRotate = true;
     camera.position.x= 150.0;
     camera.position.y= 150.0;
     camera.position.z= 150.0;
@@ -46,12 +46,13 @@ function init_light() {var data = generateHeight(worldWidth, worldDepth);
 }
 
 function init_geometries() {
-    var oceanGeometry = new THREE.SphereGeometry(params.water + 50, 80, 60);
-    var oceanMaterial = new THREE.MeshPhongMaterial({color: 0x141163});
     var planetGeometry = new PlanetGeometry(params.radius, params.detail);
     var planetMaterial = new THREE.MeshBasicMaterial({color: 0x33cc33});
-    ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
     planet = new THREE.Mesh(planetGeometry, planetMaterial);
+    var oceanGeometry = new THREE.SphereGeometry(params.water + 50, 80, 60);
+    var oceanMaterial = new THREE.MeshPhongMaterial({color: 0x141163});
+    ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
+    console.log(planet);
     scene.add(ocean);
     scene.add(planet);
 }
@@ -69,7 +70,6 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
-    controls.handleResize();
 }
 
 function animate() {
