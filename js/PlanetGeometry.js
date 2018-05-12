@@ -18,10 +18,11 @@ function PlanetGeometry(radius, detail) {
 
 PlanetGeometry.prototype = Object.create(THREE.Geometry.prototype);
 
-PlanetGeometry.prototype.applyHeightMap = function() {
+PlanetGeometry.prototype.applyHeightMap = function(noiseGen) {
     var r = this.parameters.radius;
-    var perlin = new PerlinGenerator(1, 4, 1.75);
     for (var i = this.vertices.length - 1; i >= 0; i--) {
-        this.vertices[i].normalize().multiplyScalar(r+perlin.generate(this.vertices[i].x, this.vertices[i].y, this.vertices[i].z));
+        var noise =
+        this.vertices[i].normalize().multiplyScalar(r + noiseGen.generate(this.vertices[i].x, this.vertices[i].y, this.vertices[i].z));
     }
+    this.verticesNeedUpdate = true;
 };

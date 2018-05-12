@@ -1,4 +1,4 @@
-var container, stats, camera, controls, scene, renderer, planet, gui, params;
+var container, stats, camera, controls, scene, renderer, planet, gui, params, perlinNoiseGen;
 var clock = new THREE.Clock();
 var worldWidth = 256, worldDepth = 256,
 worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
@@ -9,7 +9,6 @@ window.onload = function() {
 }
 
 function init() {
-    init_params();
     init_gui();
     init_scene();
     init_light();
@@ -43,16 +42,11 @@ function init_light() {var data = generateHeight(worldWidth, worldDepth);
     scene.add(light);
 }
 
-function init_params() {
-    params = {radius: 100, detail: 4};
-}
-
 function init_geometries() {
     var planetGeometry = new PlanetGeometry(params.radius, params.detail);
     var material = new THREE.MeshPhongMaterial({color: 0x55ff55, flatShading: true});
     planet = new THREE.Mesh(planetGeometry, material);
     scene.add(planet);
-    planetGeometry.applyHeightMap();
 }
 
 function init_renderer() {

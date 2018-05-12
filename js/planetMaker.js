@@ -1,8 +1,3 @@
-function refreshGeometry(value) {
-    console.log(value);
-    planet.geometry = new PlanetGeometry(params.radius, params.detail);
-}
-
 function generateHeight( width, height ) {
     var size = width * height, data = new Uint8Array( size );
     perlin = new ImprovedNoise(), quality = 1, z = Math.random() * 100;
