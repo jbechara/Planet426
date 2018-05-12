@@ -25,5 +25,5 @@ PlanetGeometry.prototype.applyHeightMap = function() {
     for (var i = 0; i < verts.length; i++) {
         verts[i].normalize().multiplyScalar(r);
     }
-    // TODO: Why does this work without update flags?
-}
+    // TODO: Why does this work without update flags? :/
+};

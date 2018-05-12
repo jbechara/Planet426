@@ -1,282 +1,395 @@
 "use strict";
 
+// NOTE: requires a version of dat.gui.js with the following additions:
+//  - callbacks on folder open/close
+//  - guiFolder.removeFolder(folderName)
+
+// from http://stackoverflow.com/questions/15313418/javascript-assert
+function assert(condition, message) {
+  if (!condition) {
+    message = message || "Assertion failed";
+    if (typeof Error !== "undefined") {
+      throw new Error(message);
+    }
+    throw message; // Fallback
+  }
+  return condition;
+};
+
+assert(GuiConfig);
 
 var Gui = Gui || {
-  controlParamsStruct: {},
-  meshList: [],
-  meshID: 0, // we increment this id every time we push mesh
+  hidden: false,
+  filterDefs: GuiConfig.filterDefs,
 };
 
-
-Gui.init = function() {
-
-  this.meshListDatGui = new dat.GUI();
-  this.controlListDatGui = new dat.GUI();
-
-  for (var controlIdx = 0; controlIdx < GuiConfig.controlDefs.length; controlIdx++) {
-    var controlDef = GuiConfig.controlDefs[controlIdx];
-    this.controlParamsStruct[controlDef.name] = controlDef.defaultVal;
-    // }
-    this.controlListDatGui.open();
-  }
-  this.parseUrl();
-
-  for (var controlIdx = 0; controlIdx < GuiConfig.controlDefs.length; controlIdx++) {
-    var controlDef = GuiConfig.controlDefs[controlIdx];
-    var paramControl = undefined;
-
-    switch (controlDef.type) {
-      case "slider":
-        paramControl = this.controlListDatGui.add(this.controlParamsStruct, controlDef.name, controlDef.sliderRange[0], controlDef.sliderRange[1]);
-        paramControl.step(controlDef.step || controlDef.isFloat && 1 || (controlDef.sliderRange[1] - controlDef.sliderRange[0]) / 20);
-        break;
-      case "dropdown":
-        paramControl = this.controlListDatGui.add(this.controlParamsStruct, controlDef.name, controlDef.dropdownOptions);
-        break
-      case "color":
-        paramControl = this.controlListDatGui.addColor(this.controlParamsStruct, controlDef.name);
-        break
-      case "string":
-        paramControl = this.controlListDatGui.add(this.controlParamsStruct, controlDef.name);
-        break
-      case "button":
-        paramControl = this.controlListDatGui.add(this.controlParamsStruct, controlDef.name);
-        break
-      default:
+Gui.init = function(controlsChangeCallback) {
+  var genFuncAddFilter = function(filterDef) {
+    return function() {
+      Gui.addHistoryEntry(filterDef);
     }
-    paramControl.onChange(Gui.handleControlsChange);
+  };
+
+  // save off callbacks for easy access
+  this.controlsChangeCallback = controlsChangeCallback;
+
+  if (this.hidden) {
+    this.historyFilters = [];
+
+    this.loadFromUrl();
+
+    this.fullyInitialized = true;
+
+    this.handleControlsChange();
+
+    return;
   }
 
-  this.meshListDatGui.open();
+  // make and save off dat.gui gui objects
+  this.historyDatGui = new dat.GUI();
+  this.filterListDatGui = new dat.GUI();
 
-  if (this.meshList.length == 0) {
-    this.pushMesh();
+  // make a button for each filterDef, in the correct folder
+  this.filterFolders = {};
+  this.applyFuncs = {};
+  for (var filterIdx = 0; filterIdx < this.filterDefs.length; filterIdx++) {
+    var filterDef = this.filterDefs[filterIdx];
+
+    // get the gui folder where the button goes (make it if doesn't yet exist)
+    if (!filterDef.hidden) {
+      var filterFolder = undefined;
+      if (filterDef.folderName) {
+        filterFolder = this.filterFolders[filterDef.folderName];
+
+        if (filterFolder === undefined) {
+          filterFolder = this.filterListDatGui.addFolder(
+            filterDef.folderName,
+            function() {},
+            function() {}
+            );
+          this.filterFolders[filterDef.folderName] = filterFolder;
+        }
+      }
+      else {
+        filterFolder = this.filterListDatGui;
+      }
+
+      // generate the button function and make the button
+      filterDef.applyFunc = filterDef.applyFunc || genFuncAddFilter(filterDef);
+      this.applyFuncs[filterDef.name] = filterDef.applyFunc;
+      var filterButton = filterFolder.add(this.applyFuncs, filterDef.name);
+    }
   }
 
-  this.handleControlsChange();
+  // CONSTRUCT THE HISTORY PANE
+  this.historyFolder = this.historyDatGui.addFolder("History");
+  this.historyFolder.open();
+  this.historyFilters = [];
 
   this.fullyInitialized = true;
-};
 
-Gui.pushMesh = function(newMesh) {
-  if (newMesh == undefined) {
-    var newMesh = {
-      name: "Mesh " + (Gui.meshID++).toString(),
-      meshName: GuiConfig.meshFileNames[0],
-      useMaterial: false,
-    }
+  this.loadFromUrl();
+
+  if (GuiConfig.onInit) {
+    GuiConfig.onInit(this);
   }
-
-  newMesh.meshInstance = new MeshInstance(newMesh.meshName, newMesh.useMaterial),
-
-    newMesh.delete = function() {
-      Renderer.removeMeshInstance(this.meshInstance);
-      for (var meshIdx = 0; meshIdx < Gui.meshList.length; meshIdx++) {
-        if (Gui.meshList[meshIdx].name == this.name) {
-          Gui.meshList.splice(meshIdx, 1);
-        }
-      }
-      Gui.meshListDatGui.removeFolder(this.name);
-      Gui.updateUrl();
-    };
-
-  newMesh.updateMesh = function() {
-    Renderer.removeMeshInstance(this.meshInstance);
-    this.meshInstance = new MeshInstance(this.meshName, newMesh.useMaterial);
-    Renderer.addMeshInstance(this.meshInstance);
-    Gui.updateUrl();
-  }
-
-  var meshFolder = Gui.meshListDatGui.addFolder(newMesh.name);
-  Gui.meshList.push(newMesh);
-  var handler = undefined;
-  handler = meshFolder.add(newMesh, 'meshName', GuiConfig.meshFileNames).name("Mesh File");
-  handler.onChange(function(newMesh) {
-    return function() {
-      newMesh.updateMesh();
-    }
-  }(newMesh));
-
-  handler = meshFolder.add(newMesh, 'useMaterial').name("Use Material");
-  handler.onChange(function(newMesh) {
-    return function() {
-      newMesh.updateMesh();
-    }
-  }(newMesh));
-
-
-  Renderer.addMeshInstance(newMesh.meshInstance);
-
-  meshFolder.add(newMesh, 'delete').name("Delete");
-  meshFolder.open();
-  Gui.updateUrl();
 };
-
 
 Gui.handleControlsChange = function() {
-  if (Gui.suspendDisplayUpdate) return;
-
-  for (var controlIdx = 0; controlIdx < GuiConfig.controlDefs.length; controlIdx++) {
-    var controlDef = GuiConfig.controlDefs[controlIdx];
-    var val = Gui.controlParamsStruct[controlDef.name];
-    var converted_val = undefined;
-
-
-    if (controlDef.type == "color") {
-      converted_val = [];
-      if (typeof val === "string") {
-        var bigint = parseInt(val.substring(1), 16);
-        converted_val[0] = ((bigint >> 16) & 255)
-        converted_val[1] = ((bigint >> 8) & 255);
-        converted_val[2] = ((bigint) & 255);
-      } else {
-        converted_val = val;
-      }
-      converted_val = new Pixel(converted_val[0] / 255, converted_val[1] / 255, converted_val[2] / 255);
-    } else {
-      converted_val = val;
-    }
-
-    switch (controlDef.name) {
-      case "Resolution":
-        var prevW = Renderer.width;
-        var prevH = Renderer.height;
-
-        if (converted_val == 'full') {
-          var newW = window.innerWidth;
-          var newH = window.innerHeight;
-        } else {
-          var parts = converted_val.split('x');
-          var newW = parts[0];
-          var newH = parts[1];
-        }
-        if (prevH != newH && prevW != newW) {
-          Renderer.width = newW;
-          Renderer.height = newH;
-          Renderer.initialize(); // requires reinitialization for trackball to work
-          Main.controls = new THREE.TrackballControls(Renderer.camera, Main.canvas);
-        }
-
-        break;
-      case "Shading Model":
-        Renderer.shaderMode = converted_val;
-        break;
-      case "Ambient":
-        Reflection.ambient = converted_val;
-        break;
-      case "Diffuse":
-        Reflection.diffuse = converted_val;
-        break;
-      case "Specular":
-        Reflection.specular = converted_val;
-        break;
-      case "Shininess":
-        Reflection.shininess = converted_val;
-        break;
-      default:
-    }
-  }
-  Gui.updateUrl();
-}
+  if (!Gui.fullyInitialized || Gui.suspendDisplayUpdate) return;
+  this.controlsChangeCallback();
+  this.updateUrl();
+};
 
 Gui.getFilterHistoryData = function() {
   return this.historyFilters;
+};
+
+Gui.getFilterDef = function(filterName) {
+  for (var i = 0; i < Gui.filterDefs.length; i++) {
+    var def = Gui.filterDefs[i];
+    if (def.name === filterName) {
+      return def;
+    }
+  }
+  assert(false, 'failed to find filter: ' + filterName);
+};
+
+Gui.addHistoryEntry = function(filterDef, argVals) {
+  this.suspendDisplayUpdate = true;
+
+  // make the folder for the history entry
+  // HACK: number all history entries to keep folder names unique (required by dat.gui)
+  if (!Gui.hidden) {
+    var folderLabel = (this.historyFilters.length + 1).toString() + ": " + filterDef.name;
+    var folder = this.historyFolder.addFolder(folderLabel);
+    folder.open();
+  }
+
+  // make the filter instance
+  var filterInst = {
+    filterDef: filterDef,
+    paramVals: {},
+    argsList: [],
+    guiControls: [],
+    folder: folder,
+  };
+
+  var animatedValFound = false;
+
+  // make param controls in gui folder
+  for (var paramIdx = 0; paramIdx < filterDef.paramDefs.length; paramIdx++) {
+    var paramDef = filterDef.paramDefs[paramIdx];
+
+    if (argVals && argVals[paramIdx] !== undefined) {
+      var paramVal = argVals[paramIdx];
+    }
+    else {
+      var paramVal =  paramDef.defaultVal;
+    }
+
+    // booleans and undefined become empty string
+    if (paramDef.isString) {
+      if (typeof paramVal !== "string") {
+        if (typeof paramVal === "number") {
+          paramVal = paramVal.toString();
+        }
+        else {
+          paramVal = "";
+        }
+      }
+    }
+
+    // HACK(drew): dat.gui needs to be initialized with a float for float sliders
+    filterInst.paramVals[paramDef.name] = paramDef.isFloat ? 0.5 : paramVal;
+
+    filterInst.argsList[paramIdx] = paramVal;
+
+    // mess of nested functions to generate a valid closure
+    var defaultOnChangeFunc = function(paramIdx) {
+      return function(val) {
+        filterInst.argsList[paramIdx] = val;
+        Gui.handleControlsChange();
+      }
+    }(paramIdx)
+
+    if (Gui.hidden) {
+      this.suspendDisplayUpdate = false;
+      if (paramDef.isColor) {
+        defaultOnChangeFunc(new Pixel(paramVal[0] / 255, paramVal[1] / 255, paramVal[2] / 255, 1));
+      }
+      else {
+        if (paramVal.isAnimated) {
+          assert(!animatedValFound, "only one animated parameter is allowed at a time");
+          animatedValFound = true;
+
+          Main.animatedValData = {
+            current: parseFloat(paramVal.start),
+            start: parseFloat(paramVal.start),
+            end: parseFloat(paramVal.end),
+            step: parseFloat(paramVal.step),
+            changeFunc: defaultOnChangeFunc,
+          };
+
+          paramVal = parseFloat(paramVal.start);
+        }
+
+        defaultOnChangeFunc(paramVal);
+      }
+    }
+    else {
+      var paramControl = undefined;
+      if (paramDef.sliderRange) {
+        paramControl = folder.add(filterInst.paramVals, paramDef.name, paramDef.sliderRange[0], paramDef.sliderRange[1]);
+        paramControl.step(paramDef.step || !paramDef.isFloat && 1 || (paramDef.sliderRange[1] - paramDef.sliderRange[0]) / 50);
+
+        paramControl.onChange(defaultOnChangeFunc);
+      }
+      else if (paramDef.dropdownOptions) {
+        paramControl = folder.add(filterInst.paramVals, paramDef.name, paramDef.dropdownOptions);
+        paramControl.onChange(defaultOnChangeFunc);
+      }
+      else if (paramDef.isColor) {
+        paramControl = folder.addColor(filterInst.paramVals, paramDef.name)
+        paramControl.onChange(function(filterInst, paramIdx) {
+          return function(val) {
+            filterInst.argsList[paramIdx] = new Pixel(val[0] / 255, val[1] / 255, val[2] / 255, 1);
+            Gui.handleControlsChange();
+          }
+        }(filterInst, paramIdx));
+      }
+      else if (paramDef.isString) {
+        paramControl = folder.add(filterInst.paramVals, paramDef.name)
+        paramControl.onChange(defaultOnChangeFunc);
+      }
+      else if (paramDef.isBoolean) {
+        paramControl = folder.add(filterInst.paramVals, paramDef.name)
+        paramControl.onChange(defaultOnChangeFunc);
+      }
+      else {
+        assert(false, "unsupported control type in paramDef: " + paramDef);
+      }
+
+      assert(!paramVal.isAnimated, "animated parameters are only allowed in batch mode");
+
+      // in case we initialized with a float dummy value, set default again
+      paramControl.setValue(paramVal);
+
+      filterInst.guiControls[paramIdx] = paramControl;
+    }
+  }
+
+  if (!Gui.hidden) {
+    if (filterDef.permanent) {
+      // no delete button
+    }
+    else if (filterDef.hasDeleteBelowButton) {
+      filterInst["Delete Below"] = function() {
+        Gui.deleteHistoryBelow(filterInst);
+        Gui.deleteHistoryEntry(filterInst);
+        Gui.handleControlsChange();
+      };
+      folder.add(filterInst, "Delete Below")
+    }
+    else {
+      filterInst["Delete"] = function() {
+        Gui.deleteHistoryEntry(filterInst);
+        Gui.handleControlsChange();
+      };
+      folder.add(filterInst, "Delete")
+    }
+
+    this.historyFolder.open();
+  }
+
+  this.historyFilters.push(filterInst);
+
+  this.suspendDisplayUpdate = false;
+  Gui.handleControlsChange();
+
+  return filterInst;
+};
+
+Gui.deleteHistoryEntry = function(filterInst) {
+  for (var i = 0; i < this.historyFilters.length; i++) {
+    var maybeInputFilterInst = this.historyFilters[i];
+
+    if (maybeInputFilterInst === filterInst) {
+      this.historyFolder.removeFolder(filterInst.folder.name);
+      this.historyFilters.splice(i, 1);
+      this.updateUrl();
+      return;
+    }
+  }
+};
+
+Gui.deleteHistoryBelow = function(filterInst) {
+  for (var i = 0; i < this.historyFilters.length; i++) {
+    var maybeInputFilterInst = this.historyFilters[i];
+
+    if (maybeInputFilterInst === filterInst) {
+      for (var j = i + 1; j < this.historyFilters.length; j++) {
+        var filterInstToRemove = this.historyFilters[j];
+        this.historyFolder.removeFolder(filterInstToRemove.folder.name);
+      }
+      this.historyFilters.splice(i+1, this.historyFilters.length - (i+1));
+      this.updateUrl();
+      return;
+    }
+  }
 };
 
 // gets rid of the ".0000000001" etc when stringifying floats
 // from http://stackoverflow.com/questions/1458633/how-to-deal-with-floating-point-number-precision-in-javascript
 function stripFloatError(number) {
   if (number && number.toPrecision) {
-    return (parseFloat(number.toPrecision(5)));
-  } else {
+    return (parseFloat(number.toPrecision(12)));
+  }
+  else {
     return number;
   }
 };
 
-Gui.parseUrl = function() {
+Gui.loadFromUrl = function() {
   for (var i = 0; i < Parser.commands.length; i++) {
     var cmd = Parser.commands[i];
 
-    if (cmd.name == "Mesh") {
-      var newMesh = {
-        name: "Mesh " + (Gui.meshID++).toString(),
-        meshName: cmd.args[0],
-        useMaterial: cmd.args[1] == "true" ? true : false,
+    if (cmd.name == "imageFile") {
+      var fileName = cmd.args[0];
+    }
+    else {
+
+      var filterDef = undefined;
+      for (var filterIdx = 0; filterIdx < this.filterDefs.length; filterIdx++) {
+        var curFilterDef = this.filterDefs[filterIdx];
+        if (curFilterDef.name === cmd.name) {
+          filterDef = curFilterDef;
+          break;
+        }
       }
-      this.pushMesh(newMesh);
-    } else if (cmd.name == "Camera") {
-      Renderer.cameraPosition.set(cmd.args[0][0], cmd.args[0][1], cmd.args[0][2]);
-      Renderer.cameraUpVector.set(cmd.args[1][0], cmd.args[1][1], cmd.args[1][2]);
-      Renderer.cameraLookAtVector.set(cmd.args[2][0], cmd.args[2][1], cmd.args[2][2]);
-      Renderer.updateCameraParameters();
-    } else {
-      this.controlParamsStruct[cmd.name] = cmd.args[0];
+
+      if (filterDef !== undefined) { // is known command
+        this.addHistoryEntry(filterDef, cmd.args);
+      }
     }
   }
 };
 
 Gui.getUrl = function() {
   var url = "";
+  for (var i = 0; i < this.historyFilters.length; i++) {
+    var filterInst = this.historyFilters[i];
 
-  // camera pose
-  url += "Camera=";
-  url += "[" + stripFloatError(Renderer.cameraPosition.x) + "," + stripFloatError(Renderer.cameraPosition.y) + "," + stripFloatError(Renderer.cameraPosition.z) + "];";
-  url += "[" + stripFloatError(Renderer.cameraUpVector.x) + "," + stripFloatError(Renderer.cameraUpVector.y) + "," + stripFloatError(Renderer.cameraUpVector.z) + "];";
-  url += "[" + stripFloatError(Renderer.cameraLookAtVector.x) + "," + stripFloatError(Renderer.cameraLookAtVector.y) + "," + stripFloatError(Renderer.cameraLookAtVector.z) + "]";
+    // filter separator
+    url += (i>0 && "&" || "");
 
+    // filter name
+    url += filterInst.filterDef.name + "=";
 
-  for (var meshIdx = 0; meshIdx < this.meshList.length; meshIdx++) {
-    var thisMesh = this.meshList[meshIdx];
-    url += "&" + "Mesh=" + thisMesh.meshName + ";" + (thisMesh.useMaterial ? "true" : "false");
-  }
-
-  for (var controlIdx = 0; controlIdx < GuiConfig.controlDefs.length; controlIdx++) {
-    var controlDef = GuiConfig.controlDefs[controlIdx];
-    if (controlDef.type == "button") {
-      continue;
-    }
-    url += "&" + controlDef.name + "=";
-    var val = this.controlParamsStruct[controlDef.name];
-
-    if (val.constructor === Array) {
-      url += "[";
-      for (var j = 0; j < val.length; j++) {
-        url += (j > 0 && "," || "") + stripFloatError(val[j]);
+    for (var j = 0; j < filterInst.argsList.length; j++) {
+      // parameter separator
+      if (j > 0) {
+        url += ";";
       }
-      url += "]";
-    } else {
-      url += val;
+      var val = filterInst.argsList[j];
+
+      if (isNaN(val) || val === "") {
+        if (typeof Pixel != 'undefined' && Pixel.prototype.isPrototypeOf(val)) {
+          url += "["+stripFloatError(val.data[0])+","+stripFloatError(val.data[1])+","+stripFloatError(val.data[2])+","+stripFloatError(val.a)+"]";
+        }
+        else {
+          url += val;
+        }
+      }
+      else {
+        url += stripFloatError(val);
+      }
     }
   }
-
   url = url.replace(/ /g, "_");
-
   return url;
 };
 
+var stateObj = {};
 Gui.updateUrl = function() {
   if (Gui.batchMode) return;
 
   var url = Gui.batchMode && "batch.html?" || "index.html?";
   url += Gui.getUrl();
-  history.pushState({}, "", url);
+  history.pushState(stateObj, "", url);
 };
 
-Gui.alertOnce = function(msg, divName) {
-  divName = divName || "alert_div";
-  // NOTE: mainDiv opacity change disabled to allow >1 different alerts
-  // var mainDiv = document.getElementById('main_div');
-  // mainDiv.style.opacity = "0.3";
-  var alertDiv = document.getElementById(divName);
-  alertDiv.innerHTML = '<p>' + msg + '</p><button id="ok" onclick="Gui.closeAlert()">ok</button>';
-  alertDiv.style.display = 'inline';
+Gui.alertOnce = function( msg ) {
+    var mainDiv = document.getElementById('main_div');
+    mainDiv.style.opacity = "0.3";
+    var alertDiv = document.getElementById('alert_div');
+    alertDiv.innerHTML = '<p>'+msg + '</p><button id="ok" onclick="Gui.closeAlert()">ok</button>';
+    alertDiv.style.display = 'inline';
 };
 
-Gui.closeAlert = function(divName) {
-  divName = divName || "alert_div";
-  // NOTE: mainDiv opacity change disabled to allow >1 different alerts
-  // var mainDiv = document.getElementById('main_div');
-  // mainDiv.style.opacity = "1";
-  var alertDiv = document.getElementById(divName);
-  alertDiv.style.display = 'none';
+Gui.closeAlert = function () {
+    var mainDiv = document.getElementById('main_div');
+    mainDiv.style.opacity = "1";
+    var alertDiv = document.getElementById('alert_div');
+    alertDiv.style.display = 'none';
 };
