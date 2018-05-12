@@ -26,7 +26,6 @@ function init_scene() {
     controls.dampingFactor = 0.25;
     controls.screenSpacePanning = false;
     controls.minDistance = 100;
-    controls.enableRotate = true;
     camera.position.x= 150.0;
     camera.position.y= 150.0;
     camera.position.z= 150.0;
