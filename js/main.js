@@ -1,12 +1,7 @@
-var container, stats;
-var camera, controls, scene, renderer;
-var mesh, texture;
+var container, stats, camera, controls, scene, renderer, planet, gui, params;
+var clock = new THREE.Clock();
 var worldWidth = 256, worldDepth = 256,
 worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
-var clock = new THREE.Clock();
-var planet;
-var gui;
-var params;
 
 window.onload = function() {
     init();
@@ -27,7 +22,7 @@ function init_scene() {
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 20000);
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xbfd1e5);
-    controls = new THREE.OrbitControls(camera);
+    controls = new THREE.OrbitControls(camera, container);
     controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
     controls.dampingFactor = 0.25;
     controls.screenSpacePanning = false;
@@ -53,10 +48,11 @@ function init_params() {
 }
 
 function init_geometries() {
-    planet = new PlanetGeometry(params.radius, params.detail);
+    var planetGeometry = new PlanetGeometry(params.radius, params.detail);
     var material = new THREE.MeshPhongMaterial({color: 0x55ff55, flatShading: true});
-    var planetMesh = new THREE.Mesh(planet, material);
-    scene.add(planetMesh);
+    planet = new THREE.Mesh(planetGeometry, material);
+    scene.add(planet);
+    console.log(planet);
 }
 
 function init_renderer() {
