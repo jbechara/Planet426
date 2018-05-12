@@ -11,58 +11,54 @@ window.onload = function() {
 }
 
 function init() {
-    container = document.getElementById( 'container' );
-    camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
+    init_scene();
+    init_light();
+    init_geometries();
+    init_renderer();
+}
+
+function init_scene() {
+    container = document.getElementById('container');
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 20000);
     scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0xbfd1e5 );
-    controls = new THREE.OrbitControls( camera );
+    scene.background = new THREE.Color(0xbfd1e5);
+    controls = new THREE.OrbitControls(camera);
     controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
     controls.dampingFactor = 0.25;
     controls.screenSpacePanning = false;
     controls.minDistance = 100;
     controls.maxPolarAngle = Math.PI / 2;
-    var data = generateHeight( worldWidth, worldDepth );
-    camera.position.x=4500.0;
-    camera.position.y= 4500.0;
-    camera.position.z=4500.0;
+    camera.position.x= 150.0;
+    camera.position.y= 150.0;
+    camera.position.z= 150.0;
     camera.rotation.x = -22.5*Math.PI/180;
     camera.rotation.y = 45*Math.PI/180;
     camera.rotation.z = 15*Math.PI/180;
-    var geometry = new THREE.PlaneBufferGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
-    var m1 = new THREE.Matrix4();
-    m1.makeRotationX( - Math.PI / 2 );
+}
 
-    geometry.applyMatrix( m1 );
-    var vertices = geometry.attributes.position.array;
-    for ( var i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
-        vertices[ j + 1 ] = data[ i ] * 10;
-    }
-    texture = new THREE.Texture( generateTexture( data, worldWidth, worldDepth ) );
-    texture.needsUpdate=true;
-    texture.wrapS = THREE.ClampToEdgeWrapping;
-    texture.wrapT = THREE.ClampToEdgeWrapping;
-    water = new THREE.Mesh(
-                new THREE.PlaneBufferGeometry(16384+1024, 16384+1024, 16, 16),
-                new THREE.MeshLambertMaterial({color: 0x006ba0, transparent: true, opacity: 0.6})
-            );
-    water.position.y = -99;
-    water.rotation.x = -0.5 * Math.PI;
-    scene.add(water);
-
-    skyLight = new THREE.DirectionalLight(0xe8bdb0, 1.5);
-    skyLight.position.set(2950, 2625, -160); // Sun on the sky texture
-    scene.add(skyLight);
-    var light = new THREE.DirectionalLight(0xc3eaff, 0.75);
-    light.position.set(-1, -0.5, -1);
+function init_light() {var data = generateHeight(worldWidth, worldDepth);
+    var light = new THREE.DirectionalLight( 0xffffff );
+    light.position.set(0, 1, 1).normalize();
+    light.intensity = 0.9;
     scene.add(light);
-    mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({map: texture}));
-    scene.add( mesh );
+}
+
+function init_geometries() {
+    var geometry = new PlanetGeometry(100, 5);
+    var material = new THREE.MeshPhongMaterial({color: 0x55ff55, flatShading: true});
+    var planet = new THREE.Mesh(geometry, material);
+    geometry.applyHeightMap();
+    console.log(geometry);
+    scene.add(planet);
+}
+
+function init_renderer() {
     renderer = new THREE.WebGLRenderer();
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
     container.innerHTML = "";
-    container.appendChild( renderer.domElement );
-    window.addEventListener( 'resize', onWindowResize, false );
+    container.appendChild(renderer.domElement);
+    window.addEventListener('resize', onWindowResize, false);
 }
 
 function onWindowResize() {
@@ -130,11 +126,11 @@ function generateTexture( data, width, height ) {
 }
 
 function animate() {
-    requestAnimationFrame( animate );
+    requestAnimationFrame(animate);
     render();
 }
 
 function render() {
-    controls.update( clock.getDelta() );
-    renderer.render( scene, camera );
+    controls.update(clock.getDelta());
+    renderer.render(scene, camera);
 }
