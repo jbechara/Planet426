@@ -54,6 +54,7 @@ function init_geometries() {
     planet = new PlanetGeometry(100, 5);
     var material = new THREE.MeshPhongMaterial({color: 0x55ff55, flatShading: true});
     var planetMesh = new THREE.Mesh(planet, material);
+    planet.applyHeightMap();
     scene.add(planetMesh);
 }
 
