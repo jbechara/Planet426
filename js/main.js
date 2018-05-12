@@ -6,6 +6,7 @@ worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
 var clock = new THREE.Clock();
 var planet;
 var gui;
+var params;
 
 window.onload = function() {
     init();
@@ -13,15 +14,12 @@ window.onload = function() {
 }
 
 function init() {
+    init_params();
     init_gui();
     init_scene();
     init_light();
     init_geometries();
     init_renderer();
-}
-
-function init_gui() {
-    gui = new dat.GUI();
 }
 
 function init_scene() {
@@ -50,8 +48,12 @@ function init_light() {var data = generateHeight(worldWidth, worldDepth);
     scene.add(light);
 }
 
+function init_params() {
+    params = {radius: 100, detail: 4};
+}
+
 function init_geometries() {
-    planet = new PlanetGeometry(100, 5);
+    planet = new PlanetGeometry(params.radius, params.detail);
     var material = new THREE.MeshPhongMaterial({color: 0x55ff55, flatShading: true});
     var planetMesh = new THREE.Mesh(planet, material);
     scene.add(planetMesh);
