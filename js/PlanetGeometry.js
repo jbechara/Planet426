@@ -1,7 +1,6 @@
 // A wrapper of IcosahedronGeometry for planetoids
 
 // PlanetGeometry
-
 function PlanetGeometry(radius, detail) {
     THREE.Geometry.call(this);
 
@@ -12,7 +11,7 @@ function PlanetGeometry(radius, detail) {
  	};
 
  	this.fromBufferGeometry(new THREE.IcosahedronBufferGeometry(radius, detail));
-    this.mergeVertices();
+  this.mergeVertices();
 
     return this;
 }
@@ -26,4 +25,4 @@ PlanetGeometry.prototype.applyHeightMap = function() {
         verts[i].normalize().multiplyScalar(r);
     }
     // TODO: Why does this work without update flags? :/
-};
+}
