@@ -1,3 +1,7 @@
+function refreshGeometry(value) {
+    console.log(value);
+    planet.geometry = new PlanetGeometry(params.radius, params.detail);
+}
 
 function generateHeight( width, height ) {
     var size = width * height, data = new Uint8Array( size );
