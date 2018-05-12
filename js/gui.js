@@ -1,5 +1,5 @@
 function init_gui() {
-    params = {radius: 100, detail: 6, water: 60};
+    params = {radius: 100, detail: 6, water: 52};
     perlinNoiseGen = {quality: 0.5, steps: 0, factor: 2.0, scale: 1.0};
 
     gui = new dat.GUI();
