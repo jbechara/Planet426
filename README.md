@@ -4,7 +4,7 @@
 - [x] Create TODO list.
 - [x] Build framework for terrain generator.
 - [x] Build GUI for terrain generator parameters.
-- [ ] Build framework for landscape editor.
+- [x] Build framework for landscape editor.
 - [ ] Build GUI for landscape editor.
 - [x] Modify terrain generator to planet generator (i.e. spherical generator).
 - [ ] Add features to terrain generator that were enabled in landscape editor.
