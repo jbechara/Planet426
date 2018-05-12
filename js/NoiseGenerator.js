@@ -12,6 +12,6 @@ var PerlinGenerator = function(quality, steps, factor, scale) {
 		var q = 1, d = 0;
     	for (var i = 0; i < steps; i++, q *= quality)
             d += Math.abs(perlin.noise(x/q, y/q, z/q)*q*factor);
-		return d*scale;
+		return Math.pow(d, scale);
 	}
 }
