@@ -67,7 +67,6 @@ Main.pushBrushSplat = function() {
   var filterInsts = Gui.getFilterHistoryData();
   if (filterInsts.length > 0) {
     var topFilter = filterInsts[filterInsts.length - 1];
-          console.log(topFilter)
     if (topFilter.filterDef.name == "Brush") {
       var vertsTextBox = topFilter.filterDef.name == "Brush" ? topFilter.guiControls[2] : topFilter.guiControls[3];
       var imageOffsetInCanvas = Math.max(Main.imageStack.length - 1, 0) * Main.imageStackDisplayOffset;
