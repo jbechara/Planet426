@@ -203,7 +203,11 @@ Filters.loopedTranslateFilter = function(image, x, y, sampleMode) {
 
     for (var v = 0; v < h; v++) {
         for (var u = 0; u < w; u++) {
-            newImg.setPixel(u, v, this.pointSample(image, (u + x) % w, (v + y) % h));
+            var p_x = (u - x);
+            var p_y = (v - y);
+            if (p_x < 0) p_x += w;
+            if (p_y < 0) p_y += h;
+            newImg.setPixel(u, v, this.pointSample(image, p_x % w, p_y % h));
         }
     }
 
