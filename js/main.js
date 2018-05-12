@@ -1,4 +1,4 @@
-var container, stats, camera, controls, scene, renderer, planet, gui, params, perlinNoiseGen;
+var container, stats, camera, controls, scene, renderer, planet, ocean, gui, params, perlinNoiseGen;
 var clock = new THREE.Clock();
 var worldWidth = 256, worldDepth = 256,
 worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
@@ -43,9 +43,13 @@ function init_light() {var data = generateHeight(worldWidth, worldDepth);
 }
 
 function init_geometries() {
+    var oceanGeometry = new THREE.SphereGeometry(params.water + 50, 80, 60);
+    var oceanMaterial = new THREE.MeshPhongMaterial({color: 0x141163});
     var planetGeometry = new PlanetGeometry(params.radius, params.detail);
-    var material = new THREE.MeshPhongMaterial({color: 0x55ff55, flatShading: true});
-    planet = new THREE.Mesh(planetGeometry, material);
+    var planetMaterial = new THREE.MeshPhongMaterial({color: 0x55ff55});
+    ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
+    planet = new THREE.Mesh(planetGeometry, planetMaterial);
+    scene.add(ocean);
     scene.add(planet);
 }
 
