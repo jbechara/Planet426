@@ -5,7 +5,7 @@ var GuiConfig = GuiConfig || {
 };
 
 GuiConfig.imageNames = [
-  'blank.png'
+  'blank.png', 'earth.png'
 ];
 
 GuiConfig.onInit = function() {
