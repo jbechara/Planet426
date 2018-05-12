@@ -52,7 +52,7 @@ function init_geometries() {
     var material = new THREE.MeshPhongMaterial({color: 0x55ff55, flatShading: true});
     planet = new THREE.Mesh(planetGeometry, material);
     scene.add(planet);
-    console.log(planet);
+    planetGeometry.applyHeightMap();
 }
 
 function init_renderer() {

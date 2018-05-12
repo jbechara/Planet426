@@ -13,16 +13,15 @@ function PlanetGeometry(radius, detail) {
  	this.fromBufferGeometry(new THREE.IcosahedronBufferGeometry(radius, detail));
   this.mergeVertices();
 
-    return this;
+  return this;
 }
 
 PlanetGeometry.prototype = Object.create(THREE.Geometry.prototype);
 
 PlanetGeometry.prototype.applyHeightMap = function() {
-    var verts = this.vertices;
     var r = this.parameters.radius;
-    for (var i = 0; i < verts.length; i++) {
-        verts[i].normalize().multiplyScalar(r);
+    var perlin = new PerlinGenerator(1, 4, 1.75);
+    for (var i = this.vertices.length - 1; i >= 0; i--) {
+        this.vertices[i].normalize().multiplyScalar(r+perlin.generate(this.vertices[i].x, this.vertices[i].y, this.vertices[i].z));
     }
-    // TODO: Why does this work without update flags? :/
-}
+};
