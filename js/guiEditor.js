@@ -355,9 +355,8 @@ Gui.getUrl = function(enableAnimation) {
 
 var stateObj = {};
 Gui.updateUrl = function() {
-  if (Gui.batchMode) return;
 
-  var url = Gui.batchMode && "batch.html?" || "index.html?";
+  var url = "editor.html?";
   url += Gui.getUrl();
   history.pushState(stateObj, "", url);
 };

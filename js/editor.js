@@ -4,7 +4,6 @@
 var Main = Main || {
   // internal stuff
   imageStack: [],
-  batchMode: false,
 
   // how much to offset display of each image on stack:
   imageStackDisplayOffset: 100,
@@ -68,8 +67,14 @@ Main.pushBrushSplat = function() {
   var filterInsts = Gui.getFilterHistoryData();
   if (filterInsts.length > 0) {
     var topFilter = filterInsts[filterInsts.length - 1];
-    if (topFilter.filterDef.name == "Brush" || topFilter.filterDef.name == "Soft Brush") {
+          console.log(topFilter)
+    if (topFilter.filterDef.name == "Brush") {
       var vertsTextBox = topFilter.filterDef.name == "Brush" ? topFilter.guiControls[2] : topFilter.guiControls[3];
+      var imageOffsetInCanvas = Math.max(Main.imageStack.length - 1, 0) * Main.imageStackDisplayOffset;
+      vertsTextBox.setValue(vertsTextBox.getValue() + "x" + (Main.mouseX - imageOffsetInCanvas) + "y" + (Main.mouseY - imageOffsetInCanvas));
+    }
+    else if (topFilter.filterDef.name == "Bucket") {
+      var vertsTextBox = topFilter.guiControls[1];
       var imageOffsetInCanvas = Math.max(Main.imageStack.length - 1, 0) * Main.imageStackDisplayOffset;
       vertsTextBox.setValue(vertsTextBox.getValue() + "x" + (Main.mouseX - imageOffsetInCanvas) + "y" + (Main.mouseY - imageOffsetInCanvas));
     }
