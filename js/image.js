@@ -1,255 +1,250 @@
-"use strict";
-
 //////////////////////////////////////////////////////////
-// COLOR
-
-// stores rgba channels
-// all components in the range [0, 1]
-// provides conversion to/from other color spaces
+// PIXEL
 //////////////////////////////////////////////////////////
 
-// TODO don't go through prototype chain for get/set pixel functions
-// TODO make pixel just a typed array
+// color space: lower case string omitting alpha, eg "rgb", "hsl", "xyz"
+// can also use Pixel(color), where color is a hex string, or "rgba(r,g,b,a)" eg Pixel("#ff0000")
+function Pixel( comp0, comp1, comp2, a, colorSpace ) {
+  if (typeof comp0 === "string") {
+    this.colorSpace = "rgb";
 
-function Pixel(r, g, b, a) {
-  if (typeof r === "string") {
-    // hex string
-    var bigint = parseInt(r.substring(1), 16);
-    this.r = ((bigint >> 16) & 255) / 255
-    this.g = ((bigint >> 8) & 255) / 255;
-    this.b = ((bigint) & 255) / 255;
-    this.a = 1;
-
-  } else {
+    if (comp0.match(/rgb/g)) {
+      // rgba string
+      this.data = comp0.match(/-?\d+\.?\d*/g);
+      for (var i = 0; i <= 2; i++) {
+        this.data[i] = parseFloat(this.data[i] / 255);
+      }
+      this.a = (this.data[3] && parseFloat(this.data[3]) / 255) || 1;
+      this.data[3] = undefined;
+    }
+    else {
+      // hex string
+      var bigint = parseInt( comp0.substring(1), 16 );
+      this.data = [
+        (( bigint >> 16 ) & 255) / 255,
+        (( bigint >> 8  ) & 255) / 255,
+        (( bigint       ) & 255) / 255,
+      ];
+      this.a = 1;
+    }
+  }
+  else {
     if (a === undefined) {
       a = 1;
     }
-    this.r = r;
-    this.g = g;
-    this.b = b;
+    this.data = [
+      comp0,
+      comp1,
+      comp2,
+    ];
     this.a = a;
+    this.colorSpace = colorSpace || "rgb";
   }
 }
 
 // make sure pixel values are between 0 and 255
 Pixel.prototype.clamp = function() {
-  this.r = (this.r < 0 ? 0 : (this.r > 1 ? 1 : this.r));
-  this.g = (this.g < 0 ? 0 : (this.g > 1 ? 1 : this.g));
-  this.b = (this.b < 0 ? 0 : (this.b > 1 ? 1 : this.b));
-  this.a = (this.a < 0 ? 0 : (this.a > 1 ? 1 : this.a));
+  this.data[0] = Math.min( 1, Math.max( this.data[0],  0 ) );
+  this.data[1] = Math.min( 1, Math.max( this.data[1],  0 ) );
+  this.data[2] = Math.min( 1, Math.max( this.data[2],  0 ) );
+  this.a = Math.min( 1, Math.max( this.a,  0 ) );
 };
 
-// copy value from web color code like '#a2881f' into pixel
-Pixel.prototype.fromHex = function(hex) {
-  var bigint = parseInt(hex.substring(1), 16);
-  this.r = ((bigint >> 16) & 255) / 255;
-  this.g = ((bigint >> 8) & 255) / 255;
-  this.b = ((bigint) & 255) / 255;
-  this.a = 1;
-};
+Pixel.prototype.rgbToHsl = function() {
+  assert(this.colorSpace === "rgb", "input pixel color space must be rgb");
 
-// convert to hex (returns string)
-Pixel.prototype.toHex = function() {
-  var r = Math.round(this.r) * 255;
-  var g = Math.round(this.g) * 255;
-  var b = Math.round(this.b) * 255;
-  return '#' + (r < 16 ? '0' : '') + r.toString(16) +
-    (g < 16 ? '0' : '') + g.toString(16) +
-    (b < 16 ? '0' : '') + b.toString(16);
-};
-
-// copy value from HSL into pixel
-// fromHSL( h, s, l ), where each is a number
-// fromHSL( hsl ), where hsl is an array containing the values
-Pixel.prototype.fromHSL = function(hOrHsl, s, l) {
-  if (hOrHsl !== null && typeof hOrHsl === 'object') {
-    var h = h.h;
-    s = h.s;
-    l = h.l;
-  } else {
-    var h = hOrHsl;
-  }
-  var m1, m2;
-  m2 = (l <= 0.5) ? l * (s + 1) : l + s - l * s;
-  m1 = l * 2 - m2;
-  var hueToRGB = function(m1, m2, h) {
-    h = (h < 0) ? h + 1 : ((h > 1) ? h - 1 : h);
-    if (h * 6 < 1) return m1 + (m2 - m1) * h * 6;
-    if (h * 2 < 1) return m2;
-    if (h * 3 < 2) return m1 + (m2 - m1) * (0.66666 - h) * 6;
-    return m1;
-  };
-  this.r = Math.round(hueToRGB(m1, m2, h + 1 / 3));
-  this.g = Math.round(hueToRGB(m1, m2, h));
-  this.b = Math.round(hueToRGB(m1, m2, h - 1 / 3));
-};
-
-// convert to HSL (returns values in an object)
-Pixel.prototype.toHSL = function() {
-  var r = this.r / 255,
-    g = this.g / 255,
-    b = this.b / 255;
+  var r = this.data[0],
+      g = this.data[1],
+      b = this.data[2];
   var max = Math.max(r, g, b),
-    min = Math.min(r, g, b);
+      min = Math.min(r, g, b);
   var h, s, l = (max + min) / 2;
 
-  if (max == min) {
+  if ( max == min ) {
     h = s = 0; // achromatic
   } else {
     var d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r:
-        h = (g - b) / d + (g < b ? 6 : 0);
-        break;
-      case g:
-        h = (b - r) / d + 2;
-        break;
-      case b:
-        h = (r - g) / d + 4;
-        break;
+    switch( max ) {
+       case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+       case g: h = (b - r) / d + 2; break;
+       case b: h = (r - g) / d + 4; break;
     }
     h /= 6;
   }
-  return {
-    h: h,
-    s: s,
-    l: l
+
+  return new Pixel(h, s, l, this.a, "hsl");
+};
+
+Pixel.prototype.hslToRgb = function() {
+  assert(this.colorSpace === "hsl", "input pixel color space must be hsl");
+
+  var h = this.data[0];
+  var s = this.data[1];
+  var l = this.data[2];
+
+  var m1, m2;
+  m2 = (l <= 0.5) ? l * (s + 1) : l + s - l * s;
+  m1 = l * 2 - m2;
+  var hueToRGB = function( m1, m2, h ) {
+    h = ( h < 0 ) ? h + 1 : ((h > 1) ? h - 1 : h);
+    if ( h * 6 < 1 ) return m1 + (m2 - m1) * h * 6;
+    if ( h * 2 < 1 ) return m2;
+    if ( h * 3 < 2 ) return m1 + (m2 - m1) * (0.66666 - h) * 6;
+    return m1;
   };
+
+  return new Pixel(
+    hueToRGB( m1, m2, h + 1 / 3 ),
+    hueToRGB( m1, m2, h         ),
+    hueToRGB( m1, m2, h - 1 / 3 ),
+    this.a,
+    "rgb"
+  );
 };
 
-Pixel.prototype.copy = function() {
-  return new Pixel(this.r, this.g, this.b, this.a);
+Pixel.prototype.rgbToXyz = function() {
+  assert(this.colorSpace === "rgb", "input pixel color space must be rgb");
+
+  var p = this;
+
+  var x = 0.4124*p.data[0]+0.3576*p.data[1]+0.1805*p.data[2],
+      y = 0.2126*p.data[0]+0.7152*p.data[1]+0.0722*p.data[2],
+      z = 0.0193*p.data[0]+0.1192*p.data[1]+0.9502*p.data[2];
+
+  return new Pixel(x, y, z, this.a, "xyz");
 };
 
-// PIXEL ARITHMETIC OPERATORS
-// alpha is not affected by these
 
-// adds argument p to this, returns this
-Pixel.prototype.plus = function(p) {
-  this.r += p.r;
-  this.g += p.g;
-  this.b += p.b;
-  return this;
+Pixel.prototype.xyzToRgb = function() {
+  assert(this.colorSpace === "xyz", "input pixel color space must be xyz");
+
+  var x = this.data[0];
+  var y = this.data[1];
+  var z = this.data[2];
+
+  return new Pixel(
+    3.240479*x -1.537150*y - 0.498535 * z,
+    -0.969256*x+1.875992*y + 0.041556 * z,
+    0.055648*x -0.204043*y + 1.057311 * z,
+    this.a,
+    "rgb"
+  )
 };
 
-// subtracts argument p to this, returns this
-Pixel.prototype.minus = function(p) {
-  this.r -= p.r;
-  this.g -= p.g;
-  this.b -= p.b;
-  return this;
+
+Pixel.prototype.xyzToLms = function() {
+  assert(this.colorSpace === "xyz", "input pixel color space must be xyz");
+
+  var x = this.data[0];
+  var y = this.data[1];
+  var z = this.data[2];
+
+  var l = 0.40024*x + 0.7076*y - 0.08081*z,
+      m = -0.2263*x + 1.16532*y + 0.0457*z,
+      s = 0.91822*z;
+
+  return new Pixel(l, m, s, this.a, "lms");
 };
 
-// multiplies components by scalar s, returns this
-Pixel.prototype.multipliedBy = function(s) {
-  this.r *= s;
-  this.g *= s;
-  this.b *= s;
-  return this;
+Pixel.prototype.lmsToXyz = function() {
+  assert(this.colorSpace === "lms", "input pixel color space must be lms");
+
+  var l = this.data[0];
+  var m = this.data[1];
+  var s = this.data[2];
+
+  x =  1.8599364*l - 1.1293816*m +0.2198974*s;
+  y = 0.3611914*l + 0.6388125*m- 0.0000064*s;
+  z = 1.0890636*s;
+
+  return new Pixel(x, y, z, this.a, "xyz");
 };
 
-// divides components by scalar s, returns this
-Pixel.prototype.dividedBy = function(s) {
-  s = 1 / s;
-  this.r *= s;
-  this.g *= s;
-  this.b *= s;
-  return this;
-};
-
-// copies this pixel, adds argument p to it, returns the new pixel
-Pixel.prototype.copyAdd = function(p) {
-  var q = new Pixel(0, 0, 0);
-  q.r = this.r + p.r;
-  q.g = this.g + p.g;
-  q.b = this.b + p.b;
+// adds argument color to this pixel and returns sum in a new pixel
+Pixel.prototype.plus = function( p ) {
+  var q = new Pixel( 0, 0, 0 );
+  q.data[0] = this.data[0] + p.data[0];
+  q.data[1] = this.data[1] + p.data[1];
+  q.data[2] = this.data[2] + p.data[2];
   q.a = this.a;
   return q;
 };
 
-// copies this pixel, subtracts argument p to it, returns the new pixel
-Pixel.prototype.copySub = function(p) {
-  var q = new Pixel(0, 0, 0);
-  q.r = this.r - p.r;
-  q.g = this.g - p.g;
-  q.b = this.b - p.b;
+// subtract argument color to this pixel
+// returns a new pixel, doesn't affect original
+Pixel.prototype.minus = function( p ) {
+  var q = new Pixel( 0, 0, 0 );
+  q.data[0] = this.data[0] - p.data[0];
+  q.data[1] = this.data[1] - p.data[1];
+  q.data[2] = this.data[2] - p.data[2];
   q.a = this.a;
   return q;
 };
 
-// scale values by argument s and return result in new pixel
-Pixel.prototype.copyMultiplyScalar = function(s) {
-  var q = new Pixel(0, 0, 0);
-  q.r = this.r * s;
-  q.g = this.g * s;
-  q.b = this.b * s;
+// returns a new pixel, doesn't affect original
+Pixel.prototype.multipliedBy = function( m ) {
+  var q = new Pixel( 0, 0, 0 );
+  q.data[0] = this.data[0] * m;
+  q.data[1] = this.data[1] * m;
+  q.data[2] = this.data[2] * m;
   q.a = this.a;
   return q;
 };
 
-// scale values by inverse of argument s and return result in new pixel
-Pixel.prototype.copyDivideScalar = function(s) {
-  var q = new Pixel(0, 0, 0);
-  s = 1 / s;
-  q.r = this.r * s;
-  q.g = this.g * s;
-  q.b = this.b * s;
+// returns a new pixel, doesn't affect original
+Pixel.prototype.dividedBy = function( m ) {
+  var q = new Pixel( 0, 0, 0 );
+  q.data[0] = this.data[0] / m;
+  q.data[1] = this.data[1] / m;
+  q.data[2] = this.data[2] / m;
   q.a = this.a;
   return q;
 };
+
 
 //////////////////////////////////////////////////////////
-// IMG
+// IMAGE
 //////////////////////////////////////////////////////////
 
-// width and height in pixels
-// data an array of numbers with components in range [0, 255] (like that in ImageData)
-// if data isn't supplied, image is cleared to white
-function Image(width, height, data) {
-  // non-integer dimensions cause weird behavior
-  this.width = Math.floor(width);
-  this.height = Math.floor(height);
-  if (data === undefined) {
-    data = new Uint8ClampedArray(width * height * 4);
-    for (var i = 0; i < data.length; i++) {
-      data[i] = 0;
-    }
-  }
-  this.data = data;
+function Image( width, height, data, fileName ) {
+  this.width    = width;
+  this.height   = height;
+  this.data     = data || this.createData(width, height);
+  this.fileName = fileName;
 }
 
-// clears to transparent
-Image.prototype.clear = function() {
-  for (var i = 0; i < this.data.length; i++) {
-    if (i % 4 == 3) {
-      this.data[i] = 255;
-    } else {
-      this.data[i] = 0;
+Image.prototype.fill = function( pixel ) {
+  for (var x = 0; x < this.width; x++) {
+    for (var y = 0; y < this.height; y++) {
+      this.setPixel(x, y, pixel);
     }
   }
 }
 
-Image.prototype.display = function() {
-  var canvas = Main.canvas;
-  var context = Main.context;
+Image.prototype.createData = function( width, height ) {
+  return new Uint8ClampedArray( width * height * 4 );
+};
 
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  canvas.width = this.width;
-  canvas.height = this.height;
+Image.prototype.createImg = function( width, height ) {
+  var data = this.createData( width, height );
+  // initial value of image is white and fully opaque
+  for( var i = 0; i < data.length; i++ ) {
+    data[i] = 255;
+  }
+  return new Image( width, height, data );
+};
 
-  context.putImageData(this.getImgData(), 0, 0);
-}
+Image.prototype.copyImg = function() {
+  var data = this.createData( this.width, this.height );
 
-Image.prototype.copy = function() {
-  var data = new Uint8ClampedArray(this.width * this.height * 4);
-  for (var i = 0; i < data.length; i++) {
+  for( var i = 0; i < data.length; i++ ) {
     data[i] = this.data[i];
   }
-  return new Image(this.width, this.height, data);
+  return new Image( this.width, this.height, data, this.fileName );
 };
 
-Image.prototype.getImgData = function() {
+Image.prototype.getImageData = function() {
   // this function should be this one-liner, but it only works in firefox and safari:
   // return new ImageData( this.data, this.width, this.height );
 
@@ -257,31 +252,42 @@ Image.prototype.getImgData = function() {
   // this is a workaround because Chrome does not yet implement the constructor above
   var canvas = document.createElement('canvas');
   var ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  var imageData = ctx.createImageData(this.width, this.height);
-  imageData.data.set(this.data);
+  ctx.clearRect( 0, 0, canvas.width, canvas.height );
+  var imageData = ctx.createImageData( this.width, this.height );
+  imageData.data.set( this.data );
   return imageData;
 };
 
-// pixelIndex calls inlined for performance
-// NOTE: x and y must be integers
-Image.prototype.getPixel = function(x, y) {
-  var index = 4 * (y * this.width + x);
-  var color = new Pixel(
-    this.data[index] / 255,
-    this.data[index + 1] / 255,
-    this.data[index + 2] / 255,
-    this.data[index + 3] / 255);
-  // var color2 = [this.data[index], this.data[index+1], this.data[index+2], this.data[index+3]];
-  return color;
+// says how to index into the pixel data of the image to get to pixel (x, y)
+Image.prototype.pixelIndex = function( x, y ) {
+  // if these are non-integers, indexing gets messed up
+  y = Math.round(y);
+  x = Math.round(x);
+  return 4 * ( y * this.width + x );
 };
 
-Image.prototype.setPixel = function(x, y, color) {
-  if (x >= 0 && y >= 0 && x < this.width && y < this.height) {
-    var index = 4 * (y * this.width + x);
-    this.data[index] = color.r * 255;
-    this.data[index + 1] = color.g * 255;
-    this.data[index + 2] = color.b * 255;
-    this.data[index + 3] = color.a * 255; // always opaque
+Image.prototype.getPixel = function( x, y ) {
+  if (y < 0 || y >= this.height || x < 0 || x >= this.width) {
+    return new Pixel(0, 0, 0, 0);
+  }
+
+  var index = this.pixelIndex( x, y );
+  var pixel = new Pixel(
+    this.data[index] / 255,
+    this.data[index+1] / 255,
+    this.data[index+2] / 255,
+    this.data[index+3] / 255);
+  return pixel;
+};
+
+// NOTE: pixel must be in rgb colorspace
+// TODO: assert here?
+Image.prototype.setPixel = function( x, y, pixel ) {
+  if (y >= 0 && x >= 0 && y < this.height && x < this.width) {
+    var index = this.pixelIndex( x, y );
+    this.data[index]   = pixel.data[0] * 255;
+    this.data[index+1] = pixel.data[1] * 255;
+    this.data[index+2] = pixel.data[2] * 255;
+    this.data[index+3] = pixel.a * 255;
   }
 };

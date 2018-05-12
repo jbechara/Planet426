@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- the next three lines try to discourage browser from keeping page in cache -->
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="-1">
+  <meta http-equiv="cache-control" content="no-store">
+
+  <title> Planet426 </title>
+  <link href="css/style.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+  <div id="stats"></div>
+  <div id="main_div">
+    <h1> <span class="assignment"> Planet426 <br></span> </h1>
+    <h2>Switch to: <a href='index.html'>Terrain Tuner</a></h2>
+    <canvas id="canvas"> </canvas>
+    <div id="result_div" class="image" ></div>
+  </div>
+  <div id="alert_div" title="alert"> </div>
+  <div id="alert_div_internal" title="alert"> </div>
+
+</body>
+
+<!-- libraries -->
+<script src="libjs/dat.guiEditor.js"></script>
+<script src="js/image.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/filters.js"></script>
+
+<script src="js/guiEditorConfig.js"></script>
+<script src="js/guiEditor.js"></script>
+<script>
+    Gui.hidden = false;
+</script>
+<script src="js/editor.js"> </script>
+
+</html>
