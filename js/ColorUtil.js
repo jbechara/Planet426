@@ -43,12 +43,9 @@ var ColorUtil = function() {
             Math.abs(noiseGen.generate(point.x, point.y, point.z, false)));
     }
 
-    // Linearly interpolate two colors with perturbation using NoiseGenerator
-    this.perturb = function (c1, c2, point, noiseGen) {
-        var p = point.clone()
-        .addScalar(noiseGen.generate(point.x, point.y, point.z, true)).normalize();
-        return new THREE.Color(c1.r*(1-p.x)+c2.r*p.x,
-                               c1.g*(1-p.y)+c2.g*p.y,
-                               c1.b*(1-p.z)+c2.b*p.z);
+    // Perturn point using NoiseGenerator
+    this.perturb = function (point, noiseGen) {
+        return point.clone()
+        .addScalar(noiseGen.generate(point.x, point.y, point.z, false));
     }
 }

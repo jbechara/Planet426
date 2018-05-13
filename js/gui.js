@@ -13,7 +13,8 @@ function init_gui() {
 }
 
 function refreshPlanet(value) {
-    planet.geometry = new PlanetGeometry(params.radius, params.detail);
+    // planet.geometry = new PlanetGeometry(params.radius, params.detail,
+                                         // params.water + 50);
     refreshHeight();
 }
 
@@ -22,6 +23,6 @@ function refreshOcean(value) {
 }
 
 function refreshHeight(value) {
-    planet.geometry = new PlanetGeometry(params.radius, params.detail);
+    planet.geometry = new PlanetGeometry(params.radius, params.detail, params.water + 50);
     planet.geometry.applyHeightMap(new ModPerlinGenerator(perlinNoiseGen.quality, perlinNoiseGen.steps, perlinNoiseGen.factor, perlinNoiseGen.scale));
 }

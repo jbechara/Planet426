@@ -45,12 +45,12 @@ function init_light() {var data = generateHeight(worldWidth, worldDepth);
 }
 
 function init_geometries() {
-    var planetGeometry = new PlanetGeometry(params.radius, params.detail);
+    var planetGeometry = new PlanetGeometry(params.radius, params.detail,
+                                            params.water + 50);
     var planetMaterial = new THREE.MeshPhongMaterial({vertexColors: THREE.VertexColors});
     planet = new THREE.Mesh(planetGeometry, planetMaterial);
-    planet.geometry.applyLinAltitudeColor(new THREE.Color(0x246024),
-                                       new THREE.Color(0x471c01),
-                                       params.water + 50);
+    planet.geometry.applyLinAltColor(new THREE.Color(0x246024),
+                                     new THREE.Color(0x471c01));
     var oceanGeometry = new THREE.SphereGeometry(params.water + 50, 80, 60);
     var oceanMaterial = new THREE.MeshPhongMaterial({color: 0x141163});
     ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
