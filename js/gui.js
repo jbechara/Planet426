@@ -22,5 +22,6 @@ function refreshOcean(value) {
 }
 
 function refreshHeight(value) {
-    planet.geometry.applyHeightMap(new PerlinGenerator(perlinNoiseGen.quality, perlinNoiseGen.steps, perlinNoiseGen.factor, perlinNoiseGen.scale));
+    planet.geometry = new PlanetGeometry(params.radius, params.detail);
+    planet.geometry.applyHeightMap(new ModPerlinGenerator(perlinNoiseGen.quality, perlinNoiseGen.steps, perlinNoiseGen.factor, perlinNoiseGen.scale));
 }
