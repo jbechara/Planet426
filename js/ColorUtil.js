@@ -15,7 +15,7 @@ var ColorUtil = function() {
         verts = [];
         for (var i = colors.length - 1; i >= 0; i--)
             verts[i] = new THREE.Vector3(colors[i].r, colors[i].g, colors[i].b);
-        this.spline = new THREE.CatmullRomCurve3(verts);
+        this.spline = new THREE.CatmullRomCurve3(verts, true);
     }
 
     // Spline interpolate using previously created spline
