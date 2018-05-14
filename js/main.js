@@ -41,16 +41,14 @@ function init_light() {var data = generateHeight(worldWidth, worldDepth);
     scene.add(sunlight);
     var ambientlight = new THREE.AmbientLight(0xffffff);
     ambientlight.intensity = 1.0;
-    scene.add(ambientlight);
+    //scene.add(ambientlight);
 }
 
 function init_geometries() {
-    var planetGeometry = new PlanetGeometry(params.radius, params.detail,
-                                            params.water + 50);
-    var planetMaterial = new THREE.MeshPhongMaterial({vertexColors: THREE.VertexColors});
-    planet = new THREE.Mesh(planetGeometry, planetMaterial);
-    planet.geometry.applyLinAltColor(new THREE.Color(0x246024),
-                                     new THREE.Color(0x471c01));
+    var planetGeometry = new PlanetGeometry(params.radius, params.detail);
+    var planetMat = planetMaterial();
+    planet = new THREE.Mesh(planetGeometry, planetMat);
+    planet.geometry.applyColor(texture.type);
     var oceanGeometry = new THREE.SphereGeometry(params.water + 50, 80, 60);
     var oceanMaterial = new THREE.MeshPhongMaterial({color: 0x141163});
     ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);

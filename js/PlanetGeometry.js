@@ -35,26 +35,70 @@ PlanetGeometry.prototype.applyHeightMap = function (noiseGen) {
         this.vertices[i].multiplyScalar(scale);
     }
     this.peak = max_height;
+    this.computeVertexNormals();
+    this.computeFaceNormals();
     this.verticesNeedUpdate = true;
-    // this.applyLinAltColor(new THREE.Color(0x246024), new THREE.Color(0x471c01));
-    // this.applyTurbulenceColor(new THREE.Color(0xee7f2d), new THREE.Color(0xff0000), new PerlinGenerator()); // Lava
-    // this.applySplineAltColor([new THREE.Color(0x246024), new THREE.Color(0x471c01),
-    //     new THREE.Color(0xcccccc), new THREE.Color(0xffffff)]); // Earth
-    // this.applySplineAltColor([new THREE.Color(0x766621), new THREE.Color(0x9c4f20),
-    //     new THREE.Color(0xdaa46d), new THREE.Color(0xfbe1b6)]); // Kinda Desert
-    this.applySplineAltColor([new THREE.Color(0xffffff), new THREE.Color(0xdddddd), new THREE.Color(0xbbbbbb),
-        new THREE.Color(0xa1d7ec), new THREE.Color(0x8bbbce)]); // Frost
-    // this.applySplineAltColor([new THREE.Color(0x553333), new THREE.Color(0xcc4422), new THREE.Color(0xff6600),
-    //     new THREE.Color(0xffff44), new THREE.Color(0xeadab5)]); // Fire Asteroid
-    // this.applySplinePerturbColor([new THREE.Color(0xeadab5),
-    //     new THREE.Color(0xdaa46d), new THREE.Color(0xfbe1b6)], new PerlinGenerator()); // Kinda Desert Perturb
-    // this.applyLinPerturbColor(new THREE.Color(0xff6600), new THREE.Color(0xcc4422), new PerlinGenerator()); // Better Lava?
-    // this.applyAltNoiseColor([new THREE.Color(0xffffff), new THREE.Color(0xdddddd), new THREE.Color(0xbbbbbb),
-    //     new THREE.Color(0xa1d7ec), new THREE.Color(0x8bbbce)], [new THREE.Color(0x246024), new THREE.Color(0x471c01),
-    //     new THREE.Color(0xcccccc), new THREE.Color(0xffffff)], new PerlinGenerator()); // Earth: 8, 7.4, 1.7
-    // this.applyLinNoiseColor(new THREE.Color(0xfbe1b6), new THREE.Color(0xdaa46d), new PerlinGenerator()); // Desert
-    // this.applySplineNoiseColor([new THREE.Color(0xffffff), new THREE.Color(0xdddddd), new THREE.Color(0xbbbbbb),
-    //     new THREE.Color(0xa1d7ec), new THREE.Color(0x8bbbce)], new PerlinGenerator()); // Frost Noise
+    this.normalsNeedUpdate = true;
+    this.tangentsNeedUpdate = true;
+}
+
+PlanetGeometry.prototype.applyColor = function (type) {
+
+    switch (type) {
+        case "earth1":
+            console.log("hi")
+            this.applySplineAltColor([new THREE.Color(0x246024), new THREE.Color(0x471c01),
+                                      new THREE.Color(0xcccccc), new THREE.Color(0xffffff)]);
+            break;
+        case "earth2":
+            this.applyAltNoiseColor([new THREE.Color(0xffffff), new THREE.Color(0xdddddd),
+                                     new THREE.Color(0xbbbbbb), new THREE.Color(0xa1d7ec),
+                                     new THREE.Color(0x8bbbce)],
+                                     [new THREE.Color(0x246024), new THREE.Color(0x471c01),
+                                      new THREE.Color(0xcccccc), new THREE.Color(0xffffff)],
+                                      new PerlinGenerator());
+            break;
+        case "desert1":
+            this.applySplineAltColor([new THREE.Color(0x766621), new THREE.Color(0x9c4f20),
+                                      new THREE.Color(0xdaa46d), new THREE.Color(0xfbe1b6)]);
+            break;
+        case "desert2":
+            this.applySplinePerturbColor([new THREE.Color(0xeadab5),
+                                          new THREE.Color(0xdaa46d), new THREE.Color(0xfbe1b6)],
+                                          new PerlinGenerator());
+            break;
+        case "desert3":
+            this.applyLinNoiseColor(new THREE.Color(0xfbe1b6), new THREE.Color(0xdaa46d),
+                                    new PerlinGenerator());
+            break;
+        case "frost1":
+            this.applySplineAltColor([new THREE.Color(0xffffff), new THREE.Color(0xdddddd),
+                                      new THREE.Color(0xbbbbbb), new THREE.Color(0xa1d7ec),
+                                      new THREE.Color(0x8bbbce)]);
+            break;
+        case "frost2":
+            this.applySplineNoiseColor([new THREE.Color(0xffffff), new THREE.Color(0xdddddd),
+                                        new THREE.Color(0xbbbbbb), new THREE.Color(0xa1d7ec),
+                                        new THREE.Color(0x8bbbce)], new PerlinGenerator());
+            break;
+        case "lava1":
+            this.applyTurbulenceColor(new THREE.Color(0xee7f2d), new THREE.Color(0xff0000),
+                                      new PerlinGenerator());
+            break;
+        case "lava2":
+            this.applyLinPerturbColor(new THREE.Color(0xff6600), new THREE.Color(0xcc4422),
+                                      new PerlinGenerator());
+            break;
+        case "nether":
+            this.applySplineAltColor([new THREE.Color(0x553333), new THREE.Color(0xcc4422),
+                                      new THREE.Color(0xff6600), new THREE.Color(0xffff44),
+                                      new THREE.Color(0xeadab5)]);
+            break;
+        default:
+            this.applyLinAltColor(new THREE.Color(0x246024), new THREE.Color(0x471c01));
+            break;
+    }
+    this.elementsNeedUpdate = true;
 };
 
 PlanetGeometry.prototype.applyLinAltColor = function (c1, c2) {
@@ -64,10 +108,9 @@ PlanetGeometry.prototype.applyLinAltColor = function (c1, c2) {
         for (var j = 0; j < 3; j++) {
             var vertex = this.vertices[this.faces[i][this.vertexIndices[j]]];
             this.faces[i].vertexColors[j] = this.colorUtil.lerpColors(c1, c2,
-            (vertex.length()-this.parameters.sealevel)/(this.peak-this.parameters.sealevel));
+            (vertex.length()-sealevel())/(this.peak-sealevel()));
         }
     }
-    this.colorsNeedUpdate = true;
 }
 
 PlanetGeometry.prototype.applyLinNoiseColor = function (c1, c2, noiseGen) {
@@ -76,12 +119,11 @@ PlanetGeometry.prototype.applyLinNoiseColor = function (c1, c2, noiseGen) {
         // For each vertex
         for (var j = 0; j < 3; j++) {
             var vertex = this.vertices[this.faces[i][this.vertexIndices[j]]];
-            var scale = (vertex.length()-this.parameters.sealevel)/(this.peak-this.parameters.sealevel);
+            var scale = (vertex.length()-sealevel())/(this.peak-sealevel());
             this.faces[i].vertexColors[j] = this.colorUtil.lerpNoiseColors(c1, c2,
                 vertex.clone().normalize().divideScalar(scale), noiseGen);
         }
     }
-    this.colorsNeedUpdate = true;
 }
 
 PlanetGeometry.prototype.applyTurbulenceColor = function (c1, c2, noiseGen) {
@@ -93,7 +135,6 @@ PlanetGeometry.prototype.applyTurbulenceColor = function (c1, c2, noiseGen) {
             this.faces[i].vertexColors[j] = this.colorUtil.turbulence(c1, c2, vertex, noiseGen);
         }
     }
-    this.colorsNeedUpdate = true;
 }
 
 PlanetGeometry.prototype.applyLinPerturbColor = function (c1, c2, noiseGen) {
@@ -103,11 +144,10 @@ PlanetGeometry.prototype.applyLinPerturbColor = function (c1, c2, noiseGen) {
         for (var j = 0; j < 3; j++) {
             var vertex = this.vertices[this.faces[i][this.vertexIndices[j]]];
             this.faces[i].vertexColors[j] = this.colorUtil.lerpColors(c1, c2,
-            (this.colorUtil.perturb(vertex, noiseGen).length()-this.parameters.sealevel)
-            /(this.peak-this.parameters.sealevel));
+            (this.colorUtil.perturb(vertex, noiseGen).length()-sealevel())
+            /(this.peak-sealevel()));
         }
     }
-    this.colorsNeedUpdate = true;
 }
 
 PlanetGeometry.prototype.applySplineAltColor = function (colors) {
@@ -119,10 +159,9 @@ PlanetGeometry.prototype.applySplineAltColor = function (colors) {
         for (var j = 0; j < 3; j++) {
             var vertex = this.vertices[this.faces[i][this.vertexIndices[j]]];
             this.faces[i].vertexColors[j] = this.colorUtil.serpColors(
-                (vertex.length()-this.parameters.sealevel)/(this.peak-this.parameters.sealevel));
+                (vertex.length()-sealevel())/(this.peak-sealevel()));
         }
     }
-    this.colorsNeedUpdate = true;
 }
 
 PlanetGeometry.prototype.applySplineNoiseColor = function (colors, noiseGen) {
@@ -133,12 +172,11 @@ PlanetGeometry.prototype.applySplineNoiseColor = function (colors, noiseGen) {
         // For each vertex
         for (var j = 0; j < 3; j++) {
             var vertex = this.vertices[this.faces[i][this.vertexIndices[j]]];
-            var scale = (vertex.length()-this.parameters.sealevel)/(this.peak-this.parameters.sealevel);
+            var scale = (vertex.length()-sealevel())/(this.peak-sealevel());
             this.faces[i].vertexColors[j] = this.colorUtil.serpNoiseColors(
                 vertex.clone().normalize().divideScalar(scale), noiseGen);
         }
     }
-    this.colorsNeedUpdate = true;
 }
 
 PlanetGeometry.prototype.applySplinePerturbColor = function (colors, noiseGen) {
@@ -150,11 +188,10 @@ PlanetGeometry.prototype.applySplinePerturbColor = function (colors, noiseGen) {
         for (var j = 0; j < 3; j++) {
             var vertex = this.vertices[this.faces[i][this.vertexIndices[j]]];
             this.faces[i].vertexColors[j] = this.colorUtil.serpColors(
-            (this.colorUtil.perturb(vertex, noiseGen).length()-this.parameters.sealevel)
-            /(this.peak-this.parameters.sealevel));
+            (this.colorUtil.perturb(vertex, noiseGen).length()-sealevel())
+            /(this.peak-sealevel()));
         }
     }
-    this.colorsNeedUpdate = true;
 }
 
 PlanetGeometry.prototype.applyAltNoiseColor = function (colors1, colors2, noiseGen) {
@@ -168,11 +205,10 @@ PlanetGeometry.prototype.applyAltNoiseColor = function (colors1, colors2, noiseG
         for (var j = 0; j < 3; j++) {
             var vertex = this.vertices[this.faces[i][this.vertexIndices[j]]];
             // First, spline interpolate on each color set seperately
-            var c1 = this.colorUtil.serpColors((this.colorUtil.perturb(vertex, noiseGen).length()-this.parameters.sealevel)/(this.peak-this.parameters.sealevel));
-            var c2 = this.colorUtil2.serpColors((this.colorUtil.perturb(vertex, noiseGen).length()-this.parameters.sealevel)/(this.peak-this.parameters.sealevel));
+            var c1 = this.colorUtil.serpColors((this.colorUtil.perturb(vertex, noiseGen).length()-sealevel())/(this.peak-sealevel()));
+            var c2 = this.colorUtil2.serpColors((this.colorUtil.perturb(vertex, noiseGen).length()-sealevel())/(this.peak-sealevel()));
             // Then, interpolate c1 and c2 using linear noisy interpolation
             this.faces[i].vertexColors[j] = this.colorUtil.lerpNoiseColors(c1, c2, vertex.clone().normalize(), noiseGen);
         }
     }
-    this.colorsNeedUpdate = true;
 }
