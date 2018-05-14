@@ -68,42 +68,42 @@ dat.GUI.prototype.removeFolder = function(name) {
 function addOceanGui() {
     var fOcean = gui.addFolder("Ocean");
     fOcean.add(params, 'water', 0, 100).step(1).name('Sea Level').onChange(refreshOcean);
-    var c1 = fOcean.add(ms_Ocean, "size", 100, 5000);
+    var c1 = fOcean.add(ms_Ocean, "size", 100, 5000).name("Size");
 	c1.onChange(function(v) {
 		this.object.size = v;
 		this.object.changed = true;
 	});
-	var c2 = fOcean.add(ms_Ocean, "choppiness", 0.1, 4);
+	var c2 = fOcean.add(ms_Ocean, "choppiness", 0.1, 4).name("Choppiness");
 	c2.onChange(function (v) {
 		this.object.choppiness = v;
 		this.object.changed = true;
 	});
-	var c3 = fOcean.add(ms_Ocean, "windX",-15, 15);
+	var c3 = fOcean.add(ms_Ocean, "windX",-15, 15).name("Wind X");
 	c3.onChange(function (v) {
 		this.object.windX = v;
 		this.object.changed = true;
 	});
-	var c4 = fOcean.add(ms_Ocean, "windY", -15, 15);
+	var c4 = fOcean.add(ms_Ocean, "windY", -15, 15).name("Wind Y");
 	c4.onChange(function (v) {
 		this.object.windY = v;
 		this.object.changed = true;
 	});
-	var c5 = fOcean.add(ms_Ocean, "sunDirectionX", -1.0, 1.0);
+	var c5 = fOcean.add(ms_Ocean, "sunDirectionX", -1.0, 1.0).name("Sun X");
 	c5.onChange(function (v) {
 		this.object.sunDirectionX = v;
 		this.object.changed = true;
 	});
-	var c6 = fOcean.add(ms_Ocean, "sunDirectionY", -1.0, 1.0);
+	var c6 = fOcean.add(ms_Ocean, "sunDirectionY", -1.0, 1.0).name("Sun Y");
 	c6.onChange(function (v) {
 		this.object.sunDirectionY = v;
 		this.object.changed = true;
 	});
-	var c7 = fOcean.add(ms_Ocean, "sunDirectionZ", -1.0, 1.0);
+	var c7 = fOcean.add(ms_Ocean, "sunDirectionZ", -1.0, 1.0).name("Sun Z");
 	c7.onChange(function (v) {
 		this.object.sunDirectionZ = v;
 		this.object.changed = true;
 	});
-	var c8 = fOcean.add(ms_Ocean, "exposure", 0.0, 0.5);
+	var c8 = fOcean.add(ms_Ocean, "exposure", 0.0, 0.5).name("Exposure");
 	c8.onChange(function (v) {
 		this.object.exposure = v;
 		this.object.changed = true;
