@@ -1,14 +1,13 @@
 // A wrapper of IcosahedronGeometry for planetoids
 
 // PlanetGeometry
-function PlanetGeometry(radius, detail, sealevel) {
+function PlanetGeometry(radius, detail) {
     THREE.Geometry.call(this);
 
     this.type = 'PlanetGeometry';
     this.parameters = {
         radius: radius,
-        detail: detail,
-        sealevel: sealevel
+        detail: detail
     };
 
     this.fromBufferGeometry(new THREE.IcosahedronBufferGeometry(radius, detail));
@@ -46,7 +45,6 @@ PlanetGeometry.prototype.applyColor = function (type) {
 
     switch (type) {
         case "earth1":
-            console.log("hi")
             this.applySplineAltColor([new THREE.Color(0x246024), new THREE.Color(0x471c01),
                                       new THREE.Color(0xcccccc), new THREE.Color(0xffffff)]);
             break;

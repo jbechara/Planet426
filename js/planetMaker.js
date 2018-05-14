@@ -1,16 +1,3 @@
-function generateHeight( width, height ) {
-    var size = width * height, data = new Uint8Array( size );
-    perlin = new ImprovedNoise(), quality = 1, z = Math.random() * 100;
-    for ( var j = 0; j < 4; j ++ ) {
-        for ( var i = 0; i < size; i ++ ) {
-            var x = i % width, y = ~~ ( i / width );
-            data[ i ] += Math.abs( perlin.noise( x / quality, y / quality, z ) * quality * 1.75 );
-        }
-        quality *= 5;
-    }
-    return data;
-}
-
 function generateTexture(data, width, height) {
     var canvas, canvasScaled, context, image, imageData,
     level, diff, vector3, sun, shade;
@@ -56,21 +43,4 @@ function generateTexture(data, width, height) {
 
 function sealevel() {
     return params.water + 50;
-}
-
-function planetMaterial() {
-    var ao = new THREE.TextureLoader().load("grassPRB/AO.jpg");
-    var bump = new THREE.TextureLoader().load("grassPRB/Bump.jpg");
-    var disp = new THREE.TextureLoader().load("grassPRB/Displacement.jpg");
-    var norm = new THREE.TextureLoader().load("grassPRB/Normal.jpg");
-    var rough = new THREE.TextureLoader().load( "grassPRB/Roughness.jpg");
-    //var color = new THREE.TextureLoader().load( "grassPRB/Albedo.jpg");
-
-    return new THREE.MeshStandardMaterial({aoMap: ao, bumpMap: bump, displacementMap: disp,
-                                            normalMap: norm, roughnessMap: rough,
-                                            metalness: 0.0, vertexColors: THREE.VertexColors});
-}
-
-function oceanMaterial() {
-    new THREE.MeshStandardMaterial({vertexColors: THREE.VertexColors});
 }
