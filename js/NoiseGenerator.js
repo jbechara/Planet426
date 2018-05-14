@@ -10,8 +10,8 @@ var PerlinGenerator = function(time) {
 	// noise normalized to [0,1])
 	this.generate = function (x, y, z, normalize) {
 		if (normalize === undefined || !normalize)
-			return perlin.noise(x, y, z);
-		else return this.pto1*perlin.noise(x, y, z)/2+1;
+			return this.perlin.noise(x, y, z);
+		else return this.pto1*this.perlin.noise(x, y, z)/2+1;
 	}
 }
 

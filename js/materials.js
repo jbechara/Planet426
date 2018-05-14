@@ -55,11 +55,8 @@ function planetMaterial(type) {
             return cavePBR();
             break;
         default:
-            var fText = gui.fText;
-            if (fText.params != undefined) {
-                fText.removeFolder('Material Properties');
-            }
-            return new THREE.MeshPhongMaterial({vertexColors: THREE.VertexColors});
+            return customPBR();
+            break;
     }
 }
 
@@ -357,10 +354,6 @@ function soilPBR() {
     var repeat = 4;
     var name = "soil";
     var suffix = "png";
-    var ao = new THREE.TextureLoader().load("PBR/" + name + "/AO." + suffix);
-    ao.wrapS = THREE.RepeatWrapping;
-    ao.wrapT = THREE.RepeatWrapping;
-    ao.repeat.set(repeat, repeat);
     var disp = new THREE.TextureLoader().load("PBR/" + name + "/Displacement." + suffix);
     disp.wrapS = THREE.RepeatWrapping;
     disp.wrapT = THREE.RepeatWrapping;
@@ -382,7 +375,7 @@ function soilPBR() {
     color.wrapT = THREE.RepeatWrapping;
     color.repeat.set(repeat, repeat);
 
-    var material = new THREE.MeshStandardMaterial({aoMap: ao, aoMapIntensity: 0.5,
+    var material = new THREE.MeshStandardMaterial({aoMapIntensity: 0.5,
                                             displacementMap: disp, displacementScale: 1,
                                             roughnessMap: rough, roughness: 1,
                                             metalnessMap: metal, metalness: 1,
@@ -933,5 +926,20 @@ function cavePBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    return material;
+}
+
+function customPBR() {
+
+    var material = new THREE.MeshStandardMaterial({aoMapIntensity: 1.0, displacementScale: 0,
+                                            roughness: 1, metalness: 0, vertexColors: THREE.VertexColors});
+    var fText = gui.fText;
+    if (fText.params != undefined) {
+        fText.removeFolder('Material Properties');
+    }
+    var matParams = fText.addFolder('Material Properties');
+    fText.params = matParams;
+    matParams.add(material, 'roughness', 0.0, 1).name('Roughness');
+    matParams.add(material, 'metalness', 0.0, 2).name('Metalness');
     return material;
 }

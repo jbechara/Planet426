@@ -121,7 +121,7 @@ function render() {
         refreshHeight();
     } else if (lastNoiseTime != noiseTime) {
         lastNoiseTime = noiseTime;
-        refreshColor();
+        if (texture.coloring != 'none') refreshColor();
     }
     renderer.render(scene, camera);
 }
