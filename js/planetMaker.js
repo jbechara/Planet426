@@ -1,6 +1,6 @@
 function generateHeight( width, height ) {
     var size = width * height, data = new Uint8Array( size );
-    perlin = new ImprovedNoise(), quality = 1, z = Math.random() * 100;
+    var perlin = new ImprovedNoise(), quality = 1, z = Math.random() * 100;
     for ( var j = 0; j < 4; j ++ ) {
         for ( var i = 0; i < size; i ++ ) {
             var x = i % width, y = ~~ ( i / width );
@@ -60,34 +60,34 @@ function sealevel() {
 }
 
 function planetMaterial() {
-    var repeat = 2;
-    var ao = new THREE.TextureLoader().load("grassPRB/AO.jpg");
+    var repeat = 4;
+    var ao = new THREE.TextureLoader().load("PBR/grass/AO.jpg");
     ao.wrapS = THREE.RepeatWrapping;
     ao.wrapT = THREE.RepeatWrapping;
     ao.repeat.set(repeat, repeat);
-    var bump = new THREE.TextureLoader().load("grassPRB/Bump.jpg");
+    var bump = new THREE.TextureLoader().load("PBR/grass/Bump.jpg");
     bump.wrapS = THREE.RepeatWrapping;
     bump.wrapT = THREE.RepeatWrapping;
     bump.repeat.set(repeat, repeat);
-    var disp = new THREE.TextureLoader().load("grassPRB/Displacement.jpg");
+    var disp = new THREE.TextureLoader().load("PBR/grass/Displacement.jpg");
     disp.wrapS = THREE.RepeatWrapping;
     disp.wrapT = THREE.RepeatWrapping;
     disp.repeat.set(repeat, repeat);
-    var norm = new THREE.TextureLoader().load("grassPRB/Normal.jpg");
+    var norm = new THREE.TextureLoader().load("PBR/grass/Normal.jpg");
     norm.wrapS = THREE.RepeatWrapping;
     norm.wrapT = THREE.RepeatWrapping;
     norm.repeat.set(repeat, repeat);
-    var rough = new THREE.TextureLoader().load( "grassPRB/Roughness.jpg");
+    var rough = new THREE.TextureLoader().load( "PBR/grass/Roughness.jpg");
     rough.wrapS = THREE.RepeatWrapping;
     rough.wrapT = THREE.RepeatWrapping;
     rough.repeat.set(repeat, repeat);
-    var color = new THREE.TextureLoader().load( "grassPRB/Albedo.jpg");
+    var color = new THREE.TextureLoader().load( "PBR/grass/Albedo.jpg");
     color.wrapS = THREE.RepeatWrapping;
     color.wrapT = THREE.RepeatWrapping;
     color.repeat.set(repeat, repeat);
 
-    return new THREE.MeshStandardMaterial({aoMap: ao, aoMapIntensity:0.8, bumpMap: bump,
+    return new THREE.MeshStandardMaterial({aoMap: ao, aoMapIntensity:1.0, bumpMap: bump,
                                             bumpScale: 1.5, displacementMap: disp,
                                             roughness: 10, roughnessMap: rough, map: color, displacementScale: 10,
-                                            metalness: 0.0, vertexColors: THREE.VertexColors});
+                                            metalness: 0.0});
 }

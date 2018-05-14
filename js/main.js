@@ -34,7 +34,7 @@ function init_scene() {
     camera.rotation.z = 15*Math.PI/180;
 }
 
-function init_light() {var data = generateHeight(worldWidth, worldDepth);
+function init_light() {
     var sunlight = new THREE.DirectionalLight(0xffffff);
     sunlight.position.set(0, 1, 1).normalize();
     sunlight.intensity = 1.3;
