@@ -1,5 +1,5 @@
 function init_gui() {
-    params = {radius: 100, detail: 6, water: 52};
+    params = {radius: 100, detail: 6, water: 51};
     perlinNoiseGen = {quality: 0.5, steps: 0, factor: 2.0, scale: 1.0};
     texture = {type: "earth1"};
 

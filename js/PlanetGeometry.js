@@ -1,14 +1,13 @@
 // A wrapper of IcosahedronGeometry for planetoids
 
 // PlanetGeometry
-function PlanetGeometry(radius, detail, sealevel) {
+function PlanetGeometry(radius, detail) {
     THREE.Geometry.call(this);
 
     this.type = 'PlanetGeometry';
     this.parameters = {
         radius: radius,
-        detail: detail,
-        sealevel: sealevel
+        detail: detail
     };
 
     this.fromBufferGeometry(new THREE.IcosahedronBufferGeometry(radius, detail));

@@ -37,11 +37,11 @@ function init_scene() {
 function init_light() {var data = generateHeight(worldWidth, worldDepth);
     var sunlight = new THREE.DirectionalLight(0xffffff);
     sunlight.position.set(0, 1, 1).normalize();
-    sunlight.intensity = 1.0;
+    sunlight.intensity = 1.3;
     scene.add(sunlight);
     var ambientlight = new THREE.AmbientLight(0xffffff);
-    ambientlight.intensity = 1.0;
-    //scene.add(ambientlight);
+    ambientlight.intensity = 0.4;
+    scene.add(ambientlight);
 }
 
 function init_geometries() {
