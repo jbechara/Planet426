@@ -45,7 +45,6 @@ PlanetGeometry.prototype.applyColor = function (type) {
 
     switch (type) {
         case "earth1":
-            console.log("hi")
             this.applySplineAltColor([new THREE.Color(0x246024), new THREE.Color(0x471c01),
                                       new THREE.Color(0xcccccc), new THREE.Color(0xffffff)]);
             break;

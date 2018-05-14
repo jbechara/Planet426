@@ -37,7 +37,7 @@ function init_scene() {
 function init_light() {
     var sunlight = new THREE.DirectionalLight(0xffffff);
     sunlight.position.set(0, 1, 1).normalize();
-    sunlight.intensity = 1.3;
+    sunlight.intensity = 1.0;
     scene.add(sunlight);
     var ambientlight = new THREE.AmbientLight(0xffffff);
     ambientlight.intensity = 0.4;
@@ -46,9 +46,9 @@ function init_light() {
 
 function init_geometries() {
     var planetGeometry = new PlanetGeometry(params.radius, params.detail);
-    var planetMat = planetMaterial();
+    var planetMat = planetMaterial(texture.material);
     planet = new THREE.Mesh(planetGeometry, planetMat);
-    planet.geometry.applyColor(texture.type);
+    planet.geometry.applyColor(texture.coloring);
     var oceanGeometry = new THREE.SphereGeometry(params.water + 50, 80, 60);
     var oceanMaterial = new THREE.MeshPhongMaterial({color: 0x141163});
     ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
