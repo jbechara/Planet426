@@ -1,6 +1,7 @@
 function init_gui() {
     params = {radius: 100, detail: 6, water: 52};
     perlinNoiseGen = {quality: 0.5, steps: 0, factor: 2.0, scale: 1.0};
+    texture = {type: "earth1"};
 
     gui = new dat.GUI();
     gui.add(params, 'radius', 10, 1000).step(10).name('Radius');
@@ -10,6 +11,9 @@ function init_gui() {
     gui.add(perlinNoiseGen, 'steps', 0, 20).step(1).name('Perlin Steps').onChange(refreshHeight);
     gui.add(perlinNoiseGen, 'factor', 0, 20).name('Perlin Factor').onChange(refreshHeight);
     gui.add(perlinNoiseGen, 'scale', 1, 3).name('Perlin Scale').onChange(refreshHeight);
+    gui.add(texture, 'type',
+        ['earth1','earth2','desert1','desert2','desert3','frost1','frost2','lava1','lava2','nether']
+    ).name('Biome').onChange(refreshColor);
 }
 
 function refreshPlanet(value) {
@@ -22,5 +26,9 @@ function refreshOcean(value) {
 }
 
 function refreshHeight(value) {
-    planet.geometry.applyHeightMap(new PerlinGenerator(perlinNoiseGen.quality, perlinNoiseGen.steps, perlinNoiseGen.factor, perlinNoiseGen.scale));
+    planet.geometry.applyHeightMap(new ModPerlinGenerator(perlinNoiseGen.quality, perlinNoiseGen.steps, perlinNoiseGen.factor, perlinNoiseGen.scale));
+}
+
+function refreshColor(value) {
+    planet.geometry.applyColor(texture.type);
 }
