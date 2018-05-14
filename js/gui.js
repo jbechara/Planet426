@@ -1,7 +1,7 @@
 function init_gui() {
     params = {radius: 100, detail: 6, water: 51};
     perlinNoiseGen = {quality: 0.5, steps: 0, factor: 2.0, scale: 1.0};
-    texture = {coloring: "earth1", material: "grass"};
+    texture = {coloring: "earth1", material: "none"};
     gui = new dat.GUI();
     var fGeo= gui.addFolder('Geometry');
     fGeo.add(params, 'radius', 10, 1000).step(10).name('Radius');
@@ -17,7 +17,8 @@ function init_gui() {
     fText.add(texture, 'coloring',
         ['earth1','earth2','desert1','desert2','desert3','frost1','frost2','lava1','lava2','nether']
     ).name('Biome').onChange(refreshColor);
-    fText.add(texture, 'material', ['grass','planet','sand','none']).name('Texture').onChange(refreshMaterialType);
+    fText.add(texture, 'material', ['grass','soil','dirt','sand','redsand','sandstone','carvedlimestone','cave',
+                                    'wornstone','redstone','redrock','blackrock','granite','streakedstone','pockedstone','planet','lunar','crateredrock','none']).name('Texture').onChange(refreshMaterialType);
 }
 
 function refreshPlanet(value) {
