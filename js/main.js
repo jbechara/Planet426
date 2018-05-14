@@ -1,4 +1,5 @@
 var container, stats, camera, controls, scene, renderer, planet, ocean, gui, params, perlinNoiseGen, ms_Ocean;
+var noiseTime = 0.0, lastNoiseTime = 0.0;
 var clock = new THREE.Clock();
 var worldWidth = 256, worldDepth = 256,
 worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
@@ -99,20 +100,28 @@ function animate() {
 function render() {
     controls.update(clock.getDelta());
     var currentTime = new Date().getTime();
-	ms_Ocean.deltaTime = (currentTime - lastTime) / 1000 || 0.0;
-	lastTime = currentTime;
-	ms_Ocean.render(ms_Ocean.deltaTime);
-	ms_Ocean.overrideMaterial = ms_Ocean.materialOcean;
-	if (ms_Ocean.changed) {
-		ms_Ocean.materialOcean.uniforms.u_size.value = ms_Ocean.size;
-		ms_Ocean.materialOcean.uniforms.u_sunDirection.value.set( ms_Ocean.sunDirectionX, ms_Ocean.sunDirectionY, ms_Ocean.sunDirectionZ );
-		ms_Ocean.materialOcean.uniforms.u_exposure.value = ms_Ocean.exposure;
-		ms_Ocean.changed = false;
-	}
-	ms_Ocean.materialOcean.uniforms.u_normalMap.value = ms_Ocean.normalMapFramebuffer.texture;
-	ms_Ocean.materialOcean.uniforms.u_displacementMap.value = ms_Ocean.displacementMapFramebuffer.texture;
-	ms_Ocean.materialOcean.uniforms.u_projectionMatrix.value = camera.projectionMatrix;
-	ms_Ocean.materialOcean.uniforms.u_viewMatrix.value = camera.matrixWorldInverse;
-	ms_Ocean.materialOcean.depthTest = true;
+	  ms_Ocean.deltaTime = (currentTime - lastTime) / 1000 || 0.0;
+	  lastTime = currentTime;
+	  ms_Ocean.render(ms_Ocean.deltaTime);
+	  ms_Ocean.overrideMaterial = ms_Ocean.materialOcean;
+	  if (ms_Ocean.changed) {
+		  ms_Ocean.materialOcean.uniforms.u_size.value = ms_Ocean.size;
+		  ms_Ocean.materialOcean.uniforms.u_sunDirection.value.set( ms_Ocean.sunDirectionX, ms_Ocean.sunDirectionY, ms_Ocean.sunDirectionZ );
+		  ms_Ocean.materialOcean.uniforms.u_exposure.value = ms_Ocean.exposure;
+		  ms_Ocean.changed = false;
+	  }
+	  ms_Ocean.materialOcean.uniforms.u_normalMap.value = ms_Ocean.normalMapFramebuffer.texture;
+	  ms_Ocean.materialOcean.uniforms.u_displacementMap.value = ms_Ocean.displacementMapFramebuffer.texture;
+	  ms_Ocean.materialOcean.uniforms.u_projectionMatrix.value = camera.projectionMatrix;
+	  ms_Ocean.materialOcean.uniforms.u_viewMatrix.value = camera.matrixWorldInverse;
+	  ms_Ocean.materialOcean.depthTest = true;
+    if (params.noise_timestep != 0) {
+        lastNoiseTime = noiseTime;
+        noiseTime += params.noise_timestep;
+        refreshHeight();
+    } else if (lastNoiseTime != noiseTime) {
+        lastNoiseTime = noiseTime;
+        refreshColor();
+    }
     renderer.render(scene, camera);
 }
