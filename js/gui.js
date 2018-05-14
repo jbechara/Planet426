@@ -4,7 +4,7 @@ function init_gui() {
     texture = {coloring: "earth1", material: "grass"};
     gui = new dat.GUI();
     var buttons = { color: refreshColor, stop: function() { params.noise_timestep = 0; } };
-    var fGeo= gui.addFolder('Geometry');
+    var fGeo = gui.addFolder('Geometry');
     fGeo.add(params, 'radius', 10, 1000).step(10).name('Radius');
     fGeo.add(params, 'detail', 0, 7).step(1).name('Level of Detail').onChange(refreshPlanet);
     fGeo.add(params, 'water', 0, 100).step(1).name('Sea Level').onChange(refreshOcean);
@@ -54,72 +54,73 @@ dat.GUI.prototype.removeFolder = function(name) {
 }
 
 function addOceanGui() {
-    var c1 = gui.add(ms_Ocean, "size", 100, 5000);
+    var fOcean = gui.addFolder("Ocean");
+    var c1 = fOcean.add(ms_Ocean, "size", 100, 5000).name("Size");
 	c1.onChange(function(v) {
 		this.object.size = v;
 		this.object.changed = true;
 	});
-	var c2 = gui.add(ms_Ocean, "choppiness", 0.1, 4);
+	var c2 = fOcean.add(ms_Ocean, "choppiness", 0.1, 4).name("Choppiness");
 	c2.onChange(function (v) {
 		this.object.choppiness = v;
 		this.object.changed = true;
 	});
-	var c3 = gui.add(ms_Ocean, "windX",-15, 15);
+	var c3 = fOcean.add(ms_Ocean, "windX",-15, 15).name("Wind X");
 	c3.onChange(function (v) {
 		this.object.windX = v;
 		this.object.changed = true;
 	});
-	var c4 = gui.add(ms_Ocean, "windY", -15, 15);
+	var c4 = fOcean.add(ms_Ocean, "windY", -15, 15).name("Wind Y");
 	c4.onChange(function (v) {
 		this.object.windY = v;
 		this.object.changed = true;
 	});
-	var c5 = gui.add(ms_Ocean, "sunDirectionX", -1.0, 1.0);
+	var c5 = fOcean.add(ms_Ocean, "sunDirectionX", -1.0, 1.0).name("Sun X");
 	c5.onChange(function (v) {
 		this.object.sunDirectionX = v;
 		this.object.changed = true;
 	});
-	var c6 = gui.add(ms_Ocean, "sunDirectionY", -1.0, 1.0);
+	var c6 = fOcean.add(ms_Ocean, "sunDirectionY", -1.0, 1.0).name("Sun Y");
 	c6.onChange(function (v) {
 		this.object.sunDirectionY = v;
 		this.object.changed = true;
 	});
-	var c7 = gui.add(ms_Ocean, "sunDirectionZ", -1.0, 1.0);
+	var c7 = fOcean.add(ms_Ocean, "sunDirectionZ", -1.0, 1.0).name("Sun Z");
 	c7.onChange(function (v) {
 		this.object.sunDirectionZ = v;
 		this.object.changed = true;
 	});
-	var c8 = gui.add(ms_Ocean, "exposure", 0.0, 0.5);
+	var c8 = fOcean.add(ms_Ocean, "exposure", 0.0, 0.5).name("Exposure");
 	c8.onChange(function (v) {
 		this.object.exposure = v;
 		this.object.changed = true;
 	});
-    var c9 = gui.add(ms_Ocean.oceanColor, "x", 0.0, 1.0).step(0.001).name("Water Color R");
+    var c9 = fOcean.add(ms_Ocean.oceanColor, "x", 0.0, 1.0).step(0.001).name("Water Color R");
     c9.onChange(function (v) {
         this.object.x = v;
         ms_Ocean.changed = true;
     });
-    var c10 = gui.add(ms_Ocean.oceanColor, "y", 0.0, 1.0).step(0.001).name("Water Color G");
+    var c10 = fOcean.add(ms_Ocean.oceanColor, "y", 0.0, 1.0).step(0.001).name("Water Color G");
     c10.onChange(function (v) {
         this.object.y = v;
         ms_Ocean.changed = true;
     });
-    var c11 = gui.add(ms_Ocean.oceanColor, "z", 0.0, 1.0).step(0.001).name("Water Color B");
+    var c11 = fOcean.add(ms_Ocean.oceanColor, "z", 0.0, 1.0).step(0.001).name("Water Color B");
     c11.onChange(function (v) {
         this.object.z = v;
         ms_Ocean.changed = true;
     });
-    var c12 = gui.add(ms_Ocean.skyColor, "x", 0.0, 255.0).step(0.1).name("Sky Color R");
+    var c12 = fOcean.add(ms_Ocean.skyColor, "x", 0.0, 255.0).step(0.1).name("Sky Color R");
     c12.onChange(function (v) {
         this.object.x = v;
         ms_Ocean.changed = true;
     });
-    var c13 = gui.add(ms_Ocean.skyColor, "y", 0.0, 255.0).step(0.1).name("Sky Color G");
+    var c13 = fOcean.add(ms_Ocean.skyColor, "y", 0.0, 255.0).step(0.1).name("Sky Color G");
     c13.onChange(function (v) {
         this.object.y = v;
         ms_Ocean.changed = true;
     });
-    var c14 = gui.add(ms_Ocean.skyColor, "z", 0.0, 255.0).step(0.1).name("Sky Color B");
+    var c14 = fOcean.add(ms_Ocean.skyColor, "z", 0.0, 255.0).step(0.1).name("Sky Color B");
     c14.onChange(function (v) {
         this.object.z = v;
         ms_Ocean.changed = true;
