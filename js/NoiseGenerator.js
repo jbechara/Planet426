@@ -28,8 +28,7 @@ var ModPerlinGenerator = function(quality, steps, factor, scale) {
 	this.generate = function (x, y, z, normalize) {
 		var q = 1, d = 0;
     	for (var i = steps; i > 0; i--, q *= quality)
-            d += Math.abs(perlin.noise(x/q + noiseTime, y/q,
-				z/q)*q*factor);
+            d += Math.abs(this.perlin.noise(x/q + noiseTime, y/q, z/q)*q*factor);
 		return Math.pow(d, scale);
 	}
 }

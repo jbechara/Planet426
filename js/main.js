@@ -36,13 +36,13 @@ function init_scene() {
     camera.rotation.z = 15*Math.PI/180;
 }
 
-function init_light() {var data = generateHeight(worldWidth, worldDepth);
+function init_light() {
     var sunlight = new THREE.DirectionalLight(0xffffff);
     sunlight.position.set(0, 1, 1).normalize();
     sunlight.intensity = 1.0;
     scene.add(sunlight);
     var ambientlight = new THREE.AmbientLight(0xffffff);
-    ambientlight.intensity = 1.0;
+    ambientlight.intensity = 0.4;
     scene.add(ambientlight);
 }
 
@@ -67,9 +67,9 @@ function init_geometries() {
 	ms_Ocean.materialOcean.uniforms.u_cameraPosition = { value: new THREE.Vector3(150.0, 150.0, 150.0) };
     addOceanGui();
     var planetGeometry = new PlanetGeometry(params.radius, params.detail);
-    var planetMat = planetMaterial();
+    var planetMat = planetMaterial(texture.material);
     planet = new THREE.Mesh(planetGeometry, planetMat);
-    planet.geometry.applyColor(texture.type);
+    planet.geometry.applyColor(texture.coloring);
     var oceanGeometry = new THREE.SphereGeometry(sealevel(), 80, 60);
     var oceanMat = ms_Ocean.materialOcean;
     ocean = new THREE.Mesh(oceanGeometry, oceanMat);
