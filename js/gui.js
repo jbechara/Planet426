@@ -1,26 +1,25 @@
 function init_gui() {
     params = {radius: 100, detail: 6, water: 52, water_color: 0x01040c, noise_timestep: 0.0};
     perlinNoiseGen = {quality: 0.5, steps: 0, factor: 2.0, scale: 1.0};
-    texture = {coloring: "earth1", material: "grass"};
+    texture = {coloring: 'none', material: 'none'};
     gui = new dat.GUI();
     var buttons = { color: refreshColor, stop: function() { params.noise_timestep = 0; } };
-    var fGeo = gui.addFolder('Geometry');
-    fGeo.add(params, 'radius', 10, 1000).step(10).name('Radius');
-    fGeo.add(params, 'detail', 0, 7).step(1).name('Level of Detail').onChange(refreshPlanet);
-    fGeo.add(params, 'water', 0, 100).step(1).name('Sea Level').onChange(refreshOcean);
-    var fNoise = gui.addFolder('Terrain Generation');
+    var fNoise = gui.addFolder('Planet Topology');
+    fNoise.add(params, 'radius', 10, 1000).step(10).name('Radius');
+    fNoise.add(params, 'detail', 0, 7).step(1).name('Level of Detail').onChange(refreshPlanet);
     fNoise.add(perlinNoiseGen, 'quality', 0.001, 1).step(0.0001).name('Perlin Quality').onChange(refreshHeight);
     fNoise.add(perlinNoiseGen, 'steps', 0, 20).step(1).name('Perlin Steps').onChange(refreshHeight);
     fNoise.add(perlinNoiseGen, 'factor', 0, 20).name('Perlin Factor').onChange(refreshHeight);
     fNoise.add(perlinNoiseGen, 'scale', 1, 3).name('Perlin Scale').onChange(refreshHeight);
-    fNoise.add(params, 'noise_timestep', -0.5, 0.5).step(0.001).name('Perlin Speed');
+    fNoise.add(params, 'noise_timestep', -0.5001, 0.5001).step(0.001).name('Perlin Speed');
     fNoise.add(buttons, 'stop').name('Stop Animation');
-    var fText = gui.addFolder('Texture');
+    var fText = gui.addFolder('Planet Texture');
     gui.fText = fText;
     fText.add(texture, 'coloring',
-        ['earth1','earth2','desert1','desert2','desert3','frost1','frost2','lava1','lava2','nether']
+        ['none','earth1','earth2','desert1','desert2','desert3','frost1','frost2','lava1','lava2','nether']
     ).name('Biome').onChange(refreshColor);
-    fText.add(texture, 'material', ['grass','planet','sand','none']).name('Texture').onChange(refreshMaterialType);
+    fText.add(texture, 'material', ['none','grass','soil','dirt','sand','redsand','sandstone','carvedlimestone','cave',
+                                    'wornstone','redstone','redrock','blackrock','granite','streakedstone','pockedstone','planet','lunar','crateredrock']).name('Texture').onChange(refreshMaterialType);
     fText.add(buttons, 'color').name('Refresh Texture');
 }
 
@@ -39,7 +38,20 @@ function refreshHeight(value) {
 }
 
 function refreshColor(value) {
-    planet.geometry.applyColor(texture.coloring);
+    if (texture.coloring != 'none') {
+        if (planet.material.vertexColors != THREE.VertexColors) {
+            planet.material.vertexColors = THREE.VertexColors;
+            planet.material.needsUpdate = true;
+        }
+        planet.geometry.applyColor(texture.coloring);
+    }
+    else {
+        if (planet.material.vertexColors == THREE.VertexColors && texture.material != 'none') {
+            planet.material.vertexColors = 0;
+            planet.material.needsUpdate = true;
+        }
+        refreshMaterialType();
+    }
 }
 
 function refreshMaterialType(value) {
@@ -55,6 +67,7 @@ dat.GUI.prototype.removeFolder = function(name) {
 
 function addOceanGui() {
     var fOcean = gui.addFolder("Ocean");
+    fOcean.add(params, 'water', 0, 100).step(1).name('Sea Level').onChange(refreshOcean);
     var c1 = fOcean.add(ms_Ocean, "size", 100, 5000).name("Size");
 	c1.onChange(function(v) {
 		this.object.size = v;
