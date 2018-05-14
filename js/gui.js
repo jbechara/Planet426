@@ -1,5 +1,5 @@
 function init_gui() {
-    params = {radius: 100, detail: 6, water: 52, noise_timestep: 0.0};
+    params = {radius: 100, detail: 6, water: 52, water_color: 0x01040c, noise_timestep: 0.0};
     perlinNoiseGen = {quality: 0.5, steps: 0, factor: 2.0, scale: 1.0};
     texture = {type: "earth1"};
 
@@ -36,4 +36,77 @@ function refreshHeight(value) {
 
 function refreshColor(value) {
     planet.geometry.applyColor(texture.type);
+}
+
+function addOceanGui() {
+    var c1 = gui.add(ms_Ocean, "size", 100, 5000);
+	c1.onChange(function(v) {
+		this.object.size = v;
+		this.object.changed = true;
+	});
+	var c2 = gui.add(ms_Ocean, "choppiness", 0.1, 4);
+	c2.onChange(function (v) {
+		this.object.choppiness = v;
+		this.object.changed = true;
+	});
+	var c3 = gui.add(ms_Ocean, "windX",-15, 15);
+	c3.onChange(function (v) {
+		this.object.windX = v;
+		this.object.changed = true;
+	});
+	var c4 = gui.add(ms_Ocean, "windY", -15, 15);
+	c4.onChange(function (v) {
+		this.object.windY = v;
+		this.object.changed = true;
+	});
+	var c5 = gui.add(ms_Ocean, "sunDirectionX", -1.0, 1.0);
+	c5.onChange(function (v) {
+		this.object.sunDirectionX = v;
+		this.object.changed = true;
+	});
+	var c6 = gui.add(ms_Ocean, "sunDirectionY", -1.0, 1.0);
+	c6.onChange(function (v) {
+		this.object.sunDirectionY = v;
+		this.object.changed = true;
+	});
+	var c7 = gui.add(ms_Ocean, "sunDirectionZ", -1.0, 1.0);
+	c7.onChange(function (v) {
+		this.object.sunDirectionZ = v;
+		this.object.changed = true;
+	});
+	var c8 = gui.add(ms_Ocean, "exposure", 0.0, 0.5);
+	c8.onChange(function (v) {
+		this.object.exposure = v;
+		this.object.changed = true;
+	});
+    var c9 = gui.add(ms_Ocean.oceanColor, "x", 0.0, 1.0).step(0.001).name("Water Color R");
+    c9.onChange(function (v) {
+        this.object.x = v;
+        ms_Ocean.changed = true;
+    });
+    var c10 = gui.add(ms_Ocean.oceanColor, "y", 0.0, 1.0).step(0.001).name("Water Color G");
+    c10.onChange(function (v) {
+        this.object.y = v;
+        ms_Ocean.changed = true;
+    });
+    var c11 = gui.add(ms_Ocean.oceanColor, "z", 0.0, 1.0).step(0.001).name("Water Color B");
+    c11.onChange(function (v) {
+        this.object.z = v;
+        ms_Ocean.changed = true;
+    });
+    var c12 = gui.add(ms_Ocean.skyColor, "x", 0.0, 255.0).step(0.1).name("Sky Color R");
+    c12.onChange(function (v) {
+        this.object.x = v;
+        ms_Ocean.changed = true;
+    });
+    var c13 = gui.add(ms_Ocean.skyColor, "y", 0.0, 255.0).step(0.1).name("Sky Color G");
+    c13.onChange(function (v) {
+        this.object.y = v;
+        ms_Ocean.changed = true;
+    });
+    var c14 = gui.add(ms_Ocean.skyColor, "z", 0.0, 255.0).step(0.1).name("Sky Color B");
+    c14.onChange(function (v) {
+        this.object.z = v;
+        ms_Ocean.changed = true;
+    });
 }

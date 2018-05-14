@@ -1,8 +1,9 @@
-var container, stats, camera, controls, scene, renderer, planet, ocean, gui, params, perlinNoiseGen;
+var container, stats, camera, controls, scene, renderer, planet, ocean, gui, params, perlinNoiseGen, ms_Ocean;
 var noiseTime = 0.0, lastNoiseTime = 0.0;
 var clock = new THREE.Clock();
 var worldWidth = 256, worldDepth = 256,
 worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
+var lastTime = (new Date()).getTime();
 
 window.onload = function() {
     init();
@@ -12,9 +13,9 @@ window.onload = function() {
 function init() {
     init_gui();
     init_scene();
+    init_renderer();
     init_light();
     init_geometries();
-    init_renderer();
 }
 
 function init_scene() {
@@ -42,17 +43,36 @@ function init_light() {var data = generateHeight(worldWidth, worldDepth);
     scene.add(sunlight);
     var ambientlight = new THREE.AmbientLight(0xffffff);
     ambientlight.intensity = 1.0;
-    //scene.add(ambientlight);
+    scene.add(ambientlight);
 }
 
 function init_geometries() {
+	ms_Ocean = new THREE.Ocean(renderer, camera, scene,
+	{
+		INITIAL_SIZE : 1536.0,
+		INITIAL_WIND : [2.0, 2.0],
+		INITIAL_CHOPPINESS : 1.5,
+		CLEAR_COLOR : [1.0, 1.0, 1.0, 0.0],
+		GEOMETRY_ORIGIN : [-256.0, -256.0],
+		SUN_DIRECTION : [-1.0, 1.0, 1.0],
+		OCEAN_COLOR: new THREE.Vector3(0.004, 0.016, 0.047),
+		SKY_COLOR: new THREE.Vector3(3.2, 9.6, 12.8),
+		EXPOSURE : 0.3,
+		GEOMETRY_RESOLUTION: 512,
+		GEOMETRY_SIZE : 512,
+		RESOLUTION : 1024
+	});
+	ms_Ocean.materialOcean.uniforms.u_projectionMatrix = { value: camera.projectionMatrix };
+	ms_Ocean.materialOcean.uniforms.u_viewMatrix = { value: camera.matrixWorldInverse };
+	ms_Ocean.materialOcean.uniforms.u_cameraPosition = { value: new THREE.Vector3(150.0, 150.0, 150.0) };
+    addOceanGui();
     var planetGeometry = new PlanetGeometry(params.radius, params.detail);
     var planetMat = planetMaterial();
     planet = new THREE.Mesh(planetGeometry, planetMat);
     planet.geometry.applyColor(texture.type);
-    var oceanGeometry = new THREE.SphereGeometry(params.water + 50, 80, 60);
-    var oceanMaterial = new THREE.MeshPhongMaterial({color: 0x141163});
-    ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
+    var oceanGeometry = new THREE.SphereGeometry(sealevel(), 80, 60);
+    var oceanMat = ms_Ocean.materialOcean;
+    ocean = new THREE.Mesh(oceanGeometry, oceanMat);
     scene.add(ocean);
     scene.add(planet);
 }
@@ -79,6 +99,22 @@ function animate() {
 
 function render() {
     controls.update(clock.getDelta());
+    var currentTime = new Date().getTime();
+	  ms_Ocean.deltaTime = (currentTime - lastTime) / 1000 || 0.0;
+	  lastTime = currentTime;
+	  ms_Ocean.render(ms_Ocean.deltaTime);
+	  ms_Ocean.overrideMaterial = ms_Ocean.materialOcean;
+	  if (ms_Ocean.changed) {
+		  ms_Ocean.materialOcean.uniforms.u_size.value = ms_Ocean.size;
+		  ms_Ocean.materialOcean.uniforms.u_sunDirection.value.set( ms_Ocean.sunDirectionX, ms_Ocean.sunDirectionY, ms_Ocean.sunDirectionZ );
+		  ms_Ocean.materialOcean.uniforms.u_exposure.value = ms_Ocean.exposure;
+		  ms_Ocean.changed = false;
+	  }
+	  ms_Ocean.materialOcean.uniforms.u_normalMap.value = ms_Ocean.normalMapFramebuffer.texture;
+	  ms_Ocean.materialOcean.uniforms.u_displacementMap.value = ms_Ocean.displacementMapFramebuffer.texture;
+	  ms_Ocean.materialOcean.uniforms.u_projectionMatrix.value = camera.projectionMatrix;
+	  ms_Ocean.materialOcean.uniforms.u_viewMatrix.value = camera.matrixWorldInverse;
+	  ms_Ocean.materialOcean.depthTest = true;
     if (params.noise_timestep != 0) {
         lastNoiseTime = noiseTime;
         noiseTime += params.noise_timestep;
