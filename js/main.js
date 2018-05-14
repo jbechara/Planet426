@@ -1,4 +1,5 @@
 var container, stats, camera, controls, scene, renderer, planet, ocean, gui, params, perlinNoiseGen;
+var noiseTime = 0.0, lastNoiseTime = 0.0;
 var clock = new THREE.Clock();
 var worldWidth = 256, worldDepth = 256,
 worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
@@ -78,5 +79,13 @@ function animate() {
 
 function render() {
     controls.update(clock.getDelta());
+    if (params.noise_timestep != 0) {
+        lastNoiseTime = noiseTime;
+        noiseTime += params.noise_timestep;
+        refreshHeight();
+    } else if (lastNoiseTime != noiseTime) {
+        lastNoiseTime = noiseTime;
+        refreshColor();
+    }
     renderer.render(scene, camera);
 }
