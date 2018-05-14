@@ -38,7 +38,7 @@ function init_scene() {
 
 function init_light() {
     var sunlight = new THREE.DirectionalLight(0xffffff);
-    sunlight.position.set(0, 1, 1).normalize();
+    sunlight.position.set(-0.3, 1, -1).normalize();
     sunlight.intensity = 1.0;
     scene.add(sunlight);
     var ambientlight = new THREE.AmbientLight(0xffffff);
@@ -64,7 +64,7 @@ function init_geometries() {
 	});
 	ms_Ocean.materialOcean.uniforms.u_projectionMatrix = { value: camera.projectionMatrix };
 	ms_Ocean.materialOcean.uniforms.u_viewMatrix = { value: camera.matrixWorldInverse };
-	ms_Ocean.materialOcean.uniforms.u_cameraPosition = { value: new THREE.Vector3(150.0, 150.0, 150.0) };
+	ms_Ocean.materialOcean.uniforms.u_cameraPosition = { value: new THREE.Vector3(200.0, 150.0, 200.0) };
     addOceanGui();
     var planetGeometry = new PlanetGeometry(params.radius, params.detail);
     var planetMat = planetMaterial(texture.material);
