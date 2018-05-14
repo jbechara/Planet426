@@ -21,7 +21,6 @@ function generateTexture(data, width, height) {
     canvas.width = width;
     canvas.height = height;
     context = canvas.getContext( '2d' );
-    context.fillStyle = '#000';
     context.fillRect( 0, 0, width, height );
     image = context.getImageData( 0, 0, canvas.width, canvas.height );
     imageData = image.data;
@@ -70,4 +69,8 @@ function planetMaterial() {
     return new THREE.MeshStandardMaterial({aoMap: ao, bumpMap: bump, displacementMap: disp,
                                             normalMap: norm, roughnessMap: rough,
                                             metalness: 0.0, vertexColors: THREE.VertexColors});
+}
+
+function oceanMaterial() {
+    new THREE.MeshStandardMaterial({vertexColors: THREE.VertexColors});
 }
