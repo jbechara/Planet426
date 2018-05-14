@@ -1,16 +1,3 @@
-function generateHeight( width, height ) {
-    var size = width * height, data = new Uint8Array( size );
-    var perlin = new ImprovedNoise(), quality = 1, z = Math.random() * 100;
-    for ( var j = 0; j < 4; j ++ ) {
-        for ( var i = 0; i < size; i ++ ) {
-            var x = i % width, y = ~~ ( i / width );
-            data[ i ] += Math.abs( perlin.noise( x / quality, y / quality, z ) * quality * 1.75 );
-        }
-        quality *= 5;
-    }
-    return data;
-}
-
 function generateTexture(data, width, height) {
     var canvas, canvasScaled, context, image, imageData,
     level, diff, vector3, sun, shade;
@@ -21,7 +8,6 @@ function generateTexture(data, width, height) {
     canvas.width = width;
     canvas.height = height;
     context = canvas.getContext( '2d' );
-    context.fillStyle = '#000';
     context.fillRect( 0, 0, width, height );
     image = context.getImageData( 0, 0, canvas.width, canvas.height );
     imageData = image.data;
