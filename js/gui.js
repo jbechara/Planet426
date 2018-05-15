@@ -1,7 +1,7 @@
 function init_gui() {
     params = {radius: 100, detail: 6, water: 52, water_color: 0x01040c, noise_timestep: 0.0};
     perlinNoiseGen = {quality: 0.5, steps: 0, factor: 2.0, scale: 1.0};
-    texture = {coloring: 'none', material: 'none'};
+    texture = {coloring: 'none', material: 'none', baseColor: 0x010101};
     gui = new dat.GUI();
     var buttons = { color: refreshColor, stop: function() { params.noise_timestep = 0; } };
     var fNoise = gui.addFolder('Planet Topology');

@@ -100,6 +100,7 @@ function grassPBR() {
     matParams.add(material, 'roughness', 0.0, 1).name('Roughness');
     matParams.add(material, 'metalness', 0.0, 2).name('Metalness');
     matParams.add(material, 'bumpScale', 0.0, 5).name("Bump Map");
+    matParams.addColor(material, 'color').name('Color');
 
     return material;
 }
@@ -147,6 +148,7 @@ function planetPBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', 0, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -197,6 +199,7 @@ function sandPBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 0).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -247,6 +250,7 @@ function sandstonePBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 0).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -297,6 +301,7 @@ function carvedlimestonePBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -347,6 +352,7 @@ function wornstonePBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -393,6 +399,7 @@ function soilPBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', 0, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -443,6 +450,7 @@ function pockedstonePBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -493,6 +501,7 @@ function crateredrockPBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', 0, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -543,6 +552,7 @@ function redstonePBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -593,6 +603,7 @@ function granitePBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -637,6 +648,7 @@ function redsandPBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', 0, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -687,6 +699,7 @@ function dirtPBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -729,6 +742,7 @@ function lunarPBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', 0, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -774,6 +788,7 @@ function streakedstonePBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -824,6 +839,7 @@ function redrockPBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -875,6 +891,7 @@ function blackrockPBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value)
                 {material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
@@ -926,12 +943,13 @@ function cavePBR() {
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
     matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value) {
                 material.normalScale.y = value;});
+    matParams.addColor(material, 'color').name('Color');
     return material;
 }
 
 function customPBR() {
 
-    var material = new THREE.MeshPhongMaterial({flatShading: false, wireframe: false, reflectivity: 0, refractionRatio: 0.98,
+    var material = new THREE.MeshPhongMaterial({flatShading: false, wireframe: false, reflectivity: 0,
                                             specular: 0x111111, vertexColors: THREE.VertexColors});
     var fText = gui.fText;
     if (fText.params != undefined) {
@@ -940,7 +958,6 @@ function customPBR() {
     var matParams = fText.addFolder('Material Properties');
     fText.params = matParams;
     matParams.add(material, 'reflectivity', 0.0, 1).name('Reflectivity');
-    matParams.add(material, 'refractionRatio', 0.0, 1.0).name('Refraction');
     matParams.addColor(material, 'specular').name('Specular');
     matParams.add(material, 'flatShading', ['false', 'true']).name('Flat Shading').onChange(function(value) {
             if (value == 'true') planet.material.flatShading = true;
