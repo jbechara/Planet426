@@ -54,8 +54,11 @@ function planetMaterial(type) {
         case "cave":
             return cavePBR();
             break;
+        case "phong":
+            return phongPBR();
+            break;
         default:
-            return customPBR();
+            return basicPBR();
             break;
     }
 }
@@ -947,10 +950,9 @@ function cavePBR() {
     return material;
 }
 
-function customPBR() {
+function phongPBR() {
 
-    var material = new THREE.MeshPhongMaterial({flatShading: false, wireframe: false, reflectivity: 0,
-                                            specular: 0x111111, vertexColors: THREE.VertexColors});
+    var material = new THREE.MeshPhongMaterial({flatShading: false, wireframe: false, reflectivity: 0, vertexColors: THREE.VertexColors});
     var fText = gui.fText;
     if (fText.params != undefined) {
         fText.removeFolder('Material Properties');
@@ -958,7 +960,6 @@ function customPBR() {
     var matParams = fText.addFolder('Material Properties');
     fText.params = matParams;
     matParams.add(material, 'reflectivity', 0.0, 1).name('Reflectivity');
-    matParams.addColor(material, 'specular').name('Specular');
     matParams.add(material, 'flatShading', ['false', 'true']).name('Flat Shading').onChange(function(value) {
             if (value == 'true') planet.material.flatShading = true;
             else planet.material.flatShading = false;
@@ -969,5 +970,14 @@ function customPBR() {
             else planet.material.wireframe = false;
             planet.material.needsUpdate = true;
         });
+    return material;
+}
+
+function basicPBR() {
+    var material = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
+    var fText = gui.fText;
+    if (fText.params != undefined) {
+        fText.removeFolder('Material Properties');
+    }
     return material;
 }
