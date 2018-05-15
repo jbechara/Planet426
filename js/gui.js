@@ -26,6 +26,7 @@ function init_gui() {
 function refreshPlanet(value) {
     planet.geometry = new PlanetGeometry(params.radius, params.detail);
     refreshHeight();
+    refreshColor();
 }
 
 function refreshOcean(value) {
