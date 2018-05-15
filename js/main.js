@@ -1,4 +1,4 @@
-var container, stats, camera, controls, scene, renderer, planet, ocean, gui, params, perlinNoiseGen, ms_Ocean;
+var container, stats, camera, controls, scene, renderer, planet, ocean, gui, params, perlinNoiseGen, ms_Ocean, ring;
 var noiseTime = 0.0, lastNoiseTime = 0.0;
 var clock = new THREE.Clock();
 var worldWidth = 256, worldDepth = 256,
@@ -73,8 +73,15 @@ function init_geometries() {
     var oceanGeometry = new THREE.SphereGeometry(sealevel(), 80, 60);
     var oceanMat = ms_Ocean.materialOcean;
     ocean = new THREE.Mesh(oceanGeometry, oceanMat);
+    var ringGeometry = new THREE.XRingGeometry(110, 150, 80, 5, 0, Math.PI * 2);
+    var ringMat = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('rings/saturnringcolor.jpg'),
+    side: THREE.DoubleSide, transparent: true, alphaMap: new THREE.TextureLoader().load('rings/saturnringpattern.png')});
+    ring = new THREE.Mesh(ringGeometry, ringMat);
+    ring.visible = false;
+    addRingGui();
     scene.add(ocean);
     scene.add(planet);
+    scene.add(ring);
 }
 
 function init_renderer() {
@@ -100,21 +107,21 @@ function animate() {
 function render() {
     controls.update(clock.getDelta());
     var currentTime = new Date().getTime();
-	  ms_Ocean.deltaTime = (currentTime - lastTime) / 1000 || 0.0;
-	  lastTime = currentTime;
-	  ms_Ocean.render(ms_Ocean.deltaTime);
-	  ms_Ocean.overrideMaterial = ms_Ocean.materialOcean;
-	  if (ms_Ocean.changed) {
-		  ms_Ocean.materialOcean.uniforms.u_size.value = ms_Ocean.size;
-		  ms_Ocean.materialOcean.uniforms.u_sunDirection.value.set( ms_Ocean.sunDirectionX, ms_Ocean.sunDirectionY, ms_Ocean.sunDirectionZ );
-		  ms_Ocean.materialOcean.uniforms.u_exposure.value = ms_Ocean.exposure;
-		  ms_Ocean.changed = false;
-	  }
-	  ms_Ocean.materialOcean.uniforms.u_normalMap.value = ms_Ocean.normalMapFramebuffer.texture;
-	  ms_Ocean.materialOcean.uniforms.u_displacementMap.value = ms_Ocean.displacementMapFramebuffer.texture;
-	  ms_Ocean.materialOcean.uniforms.u_projectionMatrix.value = camera.projectionMatrix;
-	  ms_Ocean.materialOcean.uniforms.u_viewMatrix.value = camera.matrixWorldInverse;
-	  ms_Ocean.materialOcean.depthTest = true;
+    ms_Ocean.deltaTime = (currentTime - lastTime) / 1000 || 0.0;
+    lastTime = currentTime;
+    ms_Ocean.render(ms_Ocean.deltaTime);
+    ms_Ocean.overrideMaterial = ms_Ocean.materialOcean;
+    if (ms_Ocean.changed) {
+      ms_Ocean.materialOcean.uniforms.u_size.value = ms_Ocean.size;
+      ms_Ocean.materialOcean.uniforms.u_sunDirection.value.set( ms_Ocean.sunDirectionX, ms_Ocean.sunDirectionY, ms_Ocean.sunDirectionZ );
+      ms_Ocean.materialOcean.uniforms.u_exposure.value = ms_Ocean.exposure;
+      ms_Ocean.changed = false;
+    }
+    ms_Ocean.materialOcean.uniforms.u_normalMap.value = ms_Ocean.normalMapFramebuffer.texture;
+    ms_Ocean.materialOcean.uniforms.u_displacementMap.value = ms_Ocean.displacementMapFramebuffer.texture;
+    ms_Ocean.materialOcean.uniforms.u_projectionMatrix.value = camera.projectionMatrix;
+    ms_Ocean.materialOcean.uniforms.u_viewMatrix.value = camera.matrixWorldInverse;
+    ms_Ocean.materialOcean.depthTest = true;
     if (params.noise_timestep != 0) {
         lastNoiseTime = noiseTime;
         noiseTime += params.noise_timestep;
