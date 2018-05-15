@@ -924,22 +924,33 @@ function cavePBR() {
     matParams.add(material, 'aoMapIntensity', 0, 5).name('AO');
     matParams.add(material, 'roughness', 0.0, 1).name('Roughness');
     matParams.add(material, 'metalness', 0.0, 1).name('Metalness');
-    matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value)
-                {material.normalScale.y = value;});
+    matParams.add(material.normalScale, 'x', -5, 5).name('Normal Scale').onChange(function(value) {
+                material.normalScale.y = value;});
     return material;
 }
 
 function customPBR() {
 
-    var material = new THREE.MeshStandardMaterial({aoMapIntensity: 1.0, displacementScale: 0,
-                                            roughness: 1, metalness: 0, vertexColors: THREE.VertexColors});
+    var material = new THREE.MeshPhongMaterial({flatShading: false, wireframe: false, reflectivity: 0, refractionRatio: 0.98,
+                                            specular: 0x111111, vertexColors: THREE.VertexColors});
     var fText = gui.fText;
     if (fText.params != undefined) {
         fText.removeFolder('Material Properties');
     }
     var matParams = fText.addFolder('Material Properties');
     fText.params = matParams;
-    matParams.add(material, 'roughness', 0.0, 1).name('Roughness');
-    matParams.add(material, 'metalness', 0.0, 2).name('Metalness');
+    matParams.add(material, 'reflectivity', 0.0, 1).name('Reflectivity');
+    matParams.add(material, 'refractionRatio', 0.0, 1.0).name('Refraction');
+    matParams.addColor(material, 'specular').name('Specular');
+    matParams.add(material, 'flatShading', ['false', 'true']).name('Flat Shading').onChange(function(value) {
+            if (value == 'true') planet.material.flatShading = true;
+            else planet.material.flatShading = false;
+            planet.material.needsUpdate = true;
+        });
+    matParams.add(material, 'wireframe', [false, true]).name('Wireframe').onChange(function(value) {
+            if (value == 'true') planet.material.wireframe = true;
+            else planet.material.wireframe = false;
+            planet.material.needsUpdate = true;
+        });
     return material;
 }
