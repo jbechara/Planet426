@@ -1,5 +1,6 @@
 function init_gui() {
-    params = {radius: 100, detail: 6, water: 52, water_color: 0x01040c, noise_timestep: 0.0};
+    params = {radius: 100, detail: 6, water: 52, water_color: 0x01040c,
+        noise_timestep: 0.0};
     perlinNoiseGen = {quality: 0.5, steps: 0, factor: 2.0, scale: 1.0};
     texture = {coloring: 'none', material: 'none', baseColor: 0x010101};
     gui = new dat.GUI();
@@ -139,4 +140,58 @@ function addOceanGui() {
         this.object.z = v;
         ms_Ocean.changed = true;
     });
+}
+
+function addRingGui() {
+    var fRing = gui.addFolder("Ring");
+    var buttons = {ringHide: function() { ring.visible = !ring.visible; }};
+    fRing.add(buttons, 'ringHide').name('Toggle Ring');
+    var c1 = fRing.add(ring.geometry.parameters, "innerRadius", 100, 200).name("Inner Radius");
+	c1.onChange(function(v) {
+        ring.geometry = new THREE.XRingGeometry(v,
+            ring.geometry.parameters.outerRadius, ring.geometry.parameters.thetaSegments,
+            ring.geometry.parameters.phiSegments, ring.geometry.parameters.thetaStart,
+            ring.geometry.parameters.thetaLength);
+	});
+    var c2 = fRing.add(ring.geometry.parameters, "outerRadius", 100, 200).name("Outer Radius");
+	c2.onChange(function(v) {
+        ring.geometry = new THREE.XRingGeometry(ring.geometry.parameters.innerRadius,
+            v, ring.geometry.parameters.thetaSegments,
+            ring.geometry.parameters.phiSegments, ring.geometry.parameters.thetaStart,
+            ring.geometry.parameters.thetaLength);
+	});
+    var c3 = fRing.add(ring.rotation, "x", 0.0, 2*Math.PI).name("Rotation X");
+	c3.onChange(function(v) {
+		this.object.x = v;
+		this.object.changed = true;
+	});
+    var c4 = fRing.add(ring.rotation, "y", 0.0, 2*Math.PI).name("Rotation Y");
+	c4.onChange(function(v) {
+		this.object.y = v;
+		this.object.changed = true;
+	});
+    var c5 = fRing.add(ring.rotation, "z", 0.0, 2*Math.PI).name("Rotation Z");
+	c5.onChange(function(v) {
+		this.object.z = v;
+		this.object.changed = true;
+	});
+    var c6 = fRing.add(ring.material.color, "r", 0.0, 1.0).name("Color R");
+	c3.onChange(function(v) {
+		this.object.r = v;
+		this.object.changed = true;
+	});
+    var c7 = fRing.add(ring.material.color, "g", 0.0, 1.0).name("Color G");
+	c4.onChange(function(v) {
+		this.object.g = v;
+		this.object.changed = true;
+	});
+    var c8 = fRing.add(ring.material.color, "b", 0.0, 1.0).name("Color B");
+	c5.onChange(function(v) {
+		this.object.b = v;
+		this.object.changed = true;
+	});
+}
+
+function refreshRing() {
+
 }
