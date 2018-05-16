@@ -57,6 +57,9 @@ function planetMaterial(type) {
         case "phong":
             return phongPBR();
             break;
+        case "toon":
+            return toonPBR();
+            break;
         default:
             return basicPBR();
             break;
@@ -970,6 +973,24 @@ function phongPBR() {
             else planet.material.wireframe = false;
             planet.material.needsUpdate = true;
         });
+    return material;
+}
+
+function toonPBR() {
+
+    var material = new THREE.MeshToonMaterial({flatShading: false, vertexColors: THREE.VertexColors});
+    var fText = gui.fText;
+    if (fText.params != undefined) {
+        fText.removeFolder('Material Properties');
+    }
+    var matParams = fText.addFolder('Material Properties');
+    fText.params = matParams;
+    matParams.add(material, 'flatShading', ['false', 'true']).name('Flat Shading').onChange(function(value) {
+            if (value == 'true') planet.material.flatShading = true;
+            else planet.material.flatShading = false;
+            planet.material.needsUpdate = true;
+        });
+
     return material;
 }
 

@@ -19,7 +19,7 @@ function init_gui() {
         ['none','earth1','earth2','desert1','desert2','desert3','frost1','frost2','lava1','lava2','nether']
     ).name('Biome').onChange(refreshColor);
     fText.add(texture, 'material', ['none','grass','soil','dirt','sand','redsand','sandstone','carvedlimestone','cave',
-                                    'wornstone','redstone','redrock','blackrock','granite','streakedstone','pockedstone','planet','lunar','crateredrock', 'phong']).name('Texture').onChange(refreshMaterialType);
+                                    'wornstone','redstone','redrock','blackrock','granite','streakedstone','pockedstone','planet','lunar','crateredrock', 'phong', 'toon']).name('Texture').onChange(refreshMaterialType);
     fText.add(buttons, 'color').name('Refresh Texture');
 }
 
@@ -68,7 +68,7 @@ dat.GUI.prototype.removeFolder = function(name) {
 
 function addOceanGui() {
     var fOcean = gui.addFolder("Ocean");
-    fOcean.add(params, 'water', 0, 100).step(1).name('Sea Level').onChange(refreshOcean);
+    fOcean.add(params, 'water', 0, 100).name('Sea Level').onChange(refreshOcean);
     var c1 = fOcean.add(ms_Ocean, "size", 100, 5000).name("Size");
 	c1.onChange(function(v) {
 		this.object.size = v;
